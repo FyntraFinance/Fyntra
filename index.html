@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="
+            width=device-width,
+            initial-scale=1.0
+        "
+    />
+
+    <title>
+        FinFamily
+    </title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    />
+
+</head>
+
+<body>
+
+    <div id="sidebarOverlay">
+
+    </div>
+
+    <aside id="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                💰
+            </div>
+
+            <div class="brand-text">
+
+                Fin<span>
+                    Family
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="sidebar-section">
+
+            MENU
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <button
+                data-menu="dashboard"
+                class="
+                    nav-item
+                    active
+                "
+                onclick="
+                    navegarPara(
+                        'dashboard'
+                    )
+                ">
+
+                📊 Dashboard
+
+            </button>
+
+            <button
+                data-menu="pessoas"
+                class="nav-item"
+                onclick="
+                    navegarPara(
+                        'pessoas'
+                    )
+                ">
+
+                👥 Pessoas
+
+            </button>
+
+            <button
+                data-menu="contasFixas"
+                class="nav-item"
+                onclick="
+                    navegarPara(
+                        'contasFixas'
+                    )
+                ">
+
+                🏠 Contas Fixas
+
+            </button>
+
+            <button
+                data-menu="contasVariaveis"
+                class="nav-item"
+                onclick="
+                    navegarPara(
+                        'contasVariaveis'
+                    )
+                ">
+
+                💳 Contas Variáveis
+
+            </button>
+
+            <button
+                data-menu="assistente"
+                class="nav-item"
+                onclick="
+                    navegarPara(
+                        'assistente'
+                    )
+                ">
+
+                🤖 Assistente IA
+
+            </button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                data-menu="perfil"
+                class="nav-item nav-item-perfil"
+                onclick="
+                    navegarPara(
+                        'perfil'
+                    )
+                ">
+
+                ⚙️ Perfil
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main id="main">
+
+        <header id="main-header">
+
+            <button
+                id="menuToggle">
+
+                ☰
+
+            </button>
+
+            <div
+                class="month-selector">
+
+                <button
+                    onclick="
+                        alterarMes(-1)
+                    ">
+
+                    ←
+
+                </button>
+
+                <button
+                    id="mesAtualTexto"
+                    class="month-label"
+                    onclick="abrirPickerMes()"
+                    title="Selecionar mês">
+
+                </button>
+
+                <button
+                    onclick="
+                        alterarMes(1)
+                    ">
+
+                    →
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <div id="app">
+
+        </div>
+
+    </main>
+
+    <!-- MODAL -->
+
+    <div
+        id="modalOverlay"
+        class="modal-overlay">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2
+                    id="modalTitulo">
+
+                </h2>
+
+                <button
+                    class="modal-close"
+                    onclick="
+                        fecharModal()
+                    ">
+
+                    ✕
+
+                </button>
+
+            </div>
+
+            <div
+                id="modalConteudo"
+                class="modal-body">
+
+            </div>
+
+            <div
+                id="modalFooter"
+                class="modal-footer">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOAST -->
+
+    <div
+        id="toastContainer"
+        class="toast-container">
+
+    </div>
+
+    <script src="js/storage.js"></script>
+
+    <script src="js/utils.js"></script>
+
+    <script src="js/modal.js"></script>
+
+    <script src="js/toast.js"></script>
+
+    <script src="js/charts.js"></script>
+
+    <script src="js/router.js"></script>
+
+    <script src="js/app.js"></script>
+
+    <script src="js/pessoas.js"></script>
+
+    <script src="js/contas-fixas.js"></script>
+
+    <script src="js/contas-variaveis.js"></script>
+
+    <script src="js/dashboard.js"></script>
+
+    <script src="js/assistente.js"></script>
+
+    <script src="js/perfil.js"></script>
+
+</body>
+
+</html>

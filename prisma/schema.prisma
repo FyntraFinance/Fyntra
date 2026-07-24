@@ -1,0 +1,139 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+
+  membros WorkspaceMembro[]
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  nome      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  membros         WorkspaceMembro[]
+  pessoas         Pessoa[]
+  contasFixas     ContaFixa[]
+  contasVariaveis ContaVariavel[]
+  metas           Meta[]
+  configuracao    Configuracao?
+}
+
+model WorkspaceMembro {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        Role      @default(MEMBER)
+  joinedAt    DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Pessoa {
+  id          String    @id @default(cuid())
+  nome        String
+  salario     Decimal   @default(0) @db.Decimal(15, 2)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  contasFixas     ContaFixa[]
+  contasVariaveis ContaVariavel[]
+
+  @@index([workspaceId])
+}
+
+model ContaFixa {
+  id          String        @id @default(cuid())
+  nome        String
+  valor       Decimal       @db.Decimal(15, 2)
+  categoria   String        @default("Outros")
+  tipo        TipoContaFixa @default(COMPARTILHADA)
+  pessoaId    String?
+  pessoa      Pessoa?       @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  dataInicio  String
+  dataFim     String?
+  observacao  String?
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([workspaceId])
+  @@index([dataInicio])
+}
+
+enum TipoContaFixa {
+  COMPARTILHADA
+  INDIVIDUAL
+}
+
+model ContaVariavel {
+  id           String    @id @default(cuid())
+  nome         String
+  valorTotal   Decimal   @db.Decimal(15, 2)
+  valorParcela Decimal   @db.Decimal(15, 2)
+  categoria    String    @default("Outros")
+  pessoaId     String
+  pessoa       Pessoa    @relation(fields: [pessoaId], references: [id], onDelete: Restrict)
+  data         String
+  mesInicio    String
+  mesFim       String
+  parcelas     Int       @default(1)
+  observacao   String?
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([workspaceId])
+  @@index([mesInicio, mesFim])
+}
+
+model Meta {
+  id                 String    @id @default(cuid())
+  nome               String
+  emoji              String    @default("🎯")
+  valorAlvo          Decimal   @db.Decimal(15, 2)
+  valorAtual         Decimal   @default(0) @db.Decimal(15, 2)
+  contribuicaoMensal Decimal?  @db.Decimal(15, 2)
+  cor                String    @default("#10b981")
+  workspaceId        String
+  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([workspaceId])
+}
+
+model Configuracao {
+  id                String    @id @default(cuid())
+  divisaoPorSalario Boolean   @default(false)
+  openaiApiKey      String?
+  workspaceId       String    @unique
+  workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  updatedAt         DateTime  @updatedAt
+}
