@@ -2986,6 +2986,29 @@ select.input option {
     text-transform: uppercase;
 }
 
+.admin-familia-link {
+
+    text-decoration: none;
+
+    color: inherit;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.admin-familia-link:hover {
+
+    background: rgba(255,255,255,.05);
+
+    border-color: rgba(255,255,255,.16);
+}
+
+.admin-familia-link .membro-role {
+
+    color: var(--accent);
+}
+
 /* ASSISTENTE: indicador de digitação e contas detectadas.
    O protótipo montava esses elementos sem nunca declarar o estilo. */
 

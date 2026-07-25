@@ -2,7 +2,7 @@ import { ConviteInstalar } from "@/components/app/ConviteInstalar";
 import { Shell } from "@/components/app/Shell";
 import { ToastProvider } from "@/components/ui/Toast";
 import { obterMesSelecionado } from "@/lib/mes";
-import { obterContexto } from "@/lib/workspace";
+import { ehAdminSistema, obterContexto } from "@/lib/workspace";
 
 export default async function AppLayout({
   children,
@@ -19,6 +19,7 @@ export default async function AppLayout({
       <Shell
         usuario={{ nome: contexto.userNome, email: contexto.userEmail }}
         mes={mes}
+        souAdmin={ehAdminSistema(contexto)}
       >
         {children}
       </Shell>

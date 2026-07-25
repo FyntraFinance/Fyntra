@@ -19,14 +19,20 @@ const MENU = [
 export function Shell({
   usuario,
   mes,
+  souAdmin = false,
   children,
 }: {
   usuario: { nome: string; email: string };
   mes: string;
+  souAdmin?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [menuAberto, setMenuAberto] = useState(false);
+
+  const menu = souAdmin
+    ? [...MENU, { href: "/admin", rotulo: "🧮 Painel Contábil" }]
+    : MENU;
 
   return (
     <>
@@ -51,16 +57,21 @@ export function Shell({
         <div className="sidebar-section">MENU</div>
 
         <nav className="sidebar-nav">
-          {MENU.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item${pathname === item.href ? " active" : ""}`}
-              onClick={() => setMenuAberto(false)}
-            >
-              {item.rotulo}
-            </Link>
-          ))}
+          {menu.map((item) => {
+            const ativo =
+              pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-item${ativo ? " active" : ""}`}
+                onClick={() => setMenuAberto(false)}
+              >
+                {item.rotulo}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="sidebar-bottom">

@@ -1,6 +1,11 @@
-import type { Role, StatusConvite, TipoContaFixa } from "@prisma/client";
+import type {
+  PapelUsuario,
+  Role,
+  StatusConvite,
+  TipoContaFixa,
+} from "@prisma/client";
 
-export type { Role, StatusConvite, TipoContaFixa };
+export type { PapelUsuario, Role, StatusConvite, TipoContaFixa };
 
 /**
  * DTOs serializáveis: o Prisma devolve `Decimal` nos campos monetários, que não

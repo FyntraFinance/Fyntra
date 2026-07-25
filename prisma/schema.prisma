@@ -9,16 +9,25 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String       @id @default(cuid())
+  email     String       @unique
   name      String?
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  role      PapelUsuario @default(USUARIO)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
 
   membros          WorkspaceMembro[]
   pessoas          Pessoa[]
   convitesEnviados Convite[]         @relation("ConvitesEnviados")
+}
+
+/// Papel do usuário no sistema como um todo (não confundir com `Role`, que é
+/// o papel dele dentro de um workspace/família específico). ADMIN é reservado
+/// para a equipe de contabilidade que acompanha as famílias de fora.
+enum PapelUsuario {
+  USUARIO
+  ADMIN
 }
 
 model Workspace {
