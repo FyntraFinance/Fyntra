@@ -1,3 +1,4 @@
+import { ConviteInstalar } from "@/components/app/ConviteInstalar";
 import { Shell } from "@/components/app/Shell";
 import { ToastProvider } from "@/components/ui/Toast";
 import { obterMesSelecionado } from "@/lib/mes";
@@ -21,6 +22,8 @@ export default async function AppLayout({
       >
         {children}
       </Shell>
+
+      <ConviteInstalar />
     </ToastProvider>
   );
 }
