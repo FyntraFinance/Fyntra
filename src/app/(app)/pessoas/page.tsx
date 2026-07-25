@@ -1,19 +1,6 @@
-import { ListaPessoas } from "@/components/pessoas/ListaPessoas";
-import { listarPessoas } from "@/lib/dados";
-import { obterContexto, podeAdministrar } from "@/lib/workspace";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Pessoas — Fyntra",
-};
-
-export default async function PessoasPage() {
-  const contexto = await obterContexto();
-  const pessoas = await listarPessoas(contexto.workspaceId);
-
-  return (
-    <ListaPessoas
-      pessoas={pessoas}
-      podeConvidar={podeAdministrar(contexto.role)}
-    />
-  );
+/** Pessoas virou uma aba do Dashboard — mantém o link antigo funcionando. */
+export default function PessoasPage() {
+  redirect("/dashboard");
 }
