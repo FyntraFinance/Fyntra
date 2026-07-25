@@ -38,7 +38,10 @@ export function Shell({
 
       <aside id="sidebar" className={menuAberto ? "open" : ""}>
         <div className="brand">
-          <div className="brand-icon">💰</div>
+          <div className="brand-icon-logo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-simbolo.png" alt="Fyntra" />
+          </div>
 
           <div className="brand-text">
             Fyn<span>tra</span>
