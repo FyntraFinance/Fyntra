@@ -31,14 +31,17 @@ const CORES_CATEGORIA = [
   "#f43f5e",
 ];
 
-const COR_TICK = "#94a3b8";
-const COR_GRID = "rgba(255,255,255,.05)";
+/* Cores lidas das custom properties do tema — recharts aceita var(--x) tanto
+   em atributos SVG (fill/stroke) quanto em estilo inline, então o gráfico
+   acompanha automaticamente o tema claro/escuro do dispositivo. */
+const COR_TICK = "var(--text-2)";
+const COR_GRID = "var(--wht-05)";
 
 const ESTILO_TOOLTIP = {
-  background: "#111827",
-  border: "1px solid rgba(255,255,255,.08)",
+  background: "var(--bg-2)",
+  border: "1px solid var(--wht-08)",
   borderRadius: 12,
-  color: "#f8fafc",
+  color: "var(--text-1)",
   fontSize: 13,
 };
 
@@ -125,7 +128,7 @@ export function GraficoResumo({
         />
 
         <Tooltip
-          cursor={{ fill: "rgba(255,255,255,.04)" }}
+          cursor={{ fill: "var(--wht-04)" }}
           contentStyle={ESTILO_TOOLTIP}
           formatter={(valor: number) => formatarMoeda(valor)}
         />
@@ -156,17 +159,17 @@ export function GraficoAnual({
         data={dados}
         margin={{ top: 8, right: 8, bottom: 0, left: 8 }}
       >
-        <CartesianGrid stroke="rgba(255,255,255,.06)" />
+        <CartesianGrid stroke="var(--wht-06)" />
 
         <XAxis
           dataKey="mes"
-          tick={{ fill: "#64748b", fontSize: 12 }}
+          tick={{ fill: COR_TICK, fontSize: 12 }}
           axisLine={false}
           tickLine={false}
         />
 
         <YAxis
-          tick={{ fill: "#64748b", fontSize: 12 }}
+          tick={{ fill: COR_TICK, fontSize: 12 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={abreviarReais}
@@ -174,7 +177,7 @@ export function GraficoAnual({
         />
 
         <Tooltip
-          cursor={{ fill: "rgba(255,255,255,.04)" }}
+          cursor={{ fill: "var(--wht-04)" }}
           contentStyle={ESTILO_TOOLTIP}
           formatter={(valor: number) => formatarMoeda(valor)}
         />
@@ -182,7 +185,7 @@ export function GraficoAnual({
         <Legend
           verticalAlign="bottom"
           iconType="circle"
-          wrapperStyle={{ color: "#64748b", fontSize: 13, paddingTop: 16 }}
+          wrapperStyle={{ color: "var(--text-2)", fontSize: 13, paddingTop: 16 }}
         />
 
         <Bar

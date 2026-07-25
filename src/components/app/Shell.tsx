@@ -85,22 +85,21 @@ export function Shell({
               <div className="sidebar-user-email">{usuario.email}</div>
             </div>
 
+            <Link
+              href="/perfil"
+              className="sidebar-icone-perfil"
+              title="Perfil"
+              onClick={() => setMenuAberto(false)}
+            >
+              ⚙️
+            </Link>
+
             <form action={sair}>
               <button className="sidebar-sair" type="submit" title="Sair">
                 ⏻
               </button>
             </form>
           </div>
-
-          <Link
-            href="/perfil"
-            className={`nav-item nav-item-perfil${
-              pathname === "/perfil" ? " active" : ""
-            }`}
-            onClick={() => setMenuAberto(false)}
-          >
-            ⚙️ Perfil
-          </Link>
         </div>
       </aside>
 
