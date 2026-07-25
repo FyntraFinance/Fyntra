@@ -91,6 +91,16 @@ export default async function RelatorioFamiliaPage({
 
   const linkMes = (novoMes: string) => `/admin/${workspaceId}?mes=${novoMes}`;
 
+  const nomePorPessoa = new Map(pessoas.map((pessoa) => [pessoa.id, pessoa.nome]));
+
+  const todasFixasOrdenadas = [...todasFixas].sort((a, b) =>
+    b.dataInicio.localeCompare(a.dataInicio),
+  );
+
+  const todasVariaveisOrdenadas = [...todasVariaveis].sort((a, b) =>
+    b.data.localeCompare(a.data),
+  );
+
   return (
     <>
       <div className="page-header">
@@ -255,22 +265,35 @@ export default async function RelatorioFamiliaPage({
 
       <div className="mt-16">
         <div className="card-header">
-          <div className="card-title">🏠 Contas Fixas do mês</div>
+          <div className="card-title">
+            🏠 Todas as Contas Fixas ({todasFixasOrdenadas.length})
+          </div>
         </div>
 
         <div className="card">
           <div className="membros-lista">
-            {fixasMes.length === 0 ? (
-              <div className="text-slate-400">Nenhuma conta fixa neste mês.</div>
+            {todasFixasOrdenadas.length === 0 ? (
+              <div className="text-slate-400">
+                Nenhuma conta fixa cadastrada nesta família.
+              </div>
             ) : (
-              fixasMes.map((conta) => (
+              todasFixasOrdenadas.map((conta) => (
                 <div className="membro-item" key={conta.id}>
                   <div>
                     <div className="list-title">{conta.nome}</div>
                     <div className="list-sub">
                       <span>{conta.categoria}</span>
                       <span>
-                        {conta.tipo === "INDIVIDUAL" ? "Individual" : "Compartilhada"}
+                        {conta.tipo === "INDIVIDUAL"
+                          ? `Individual — ${
+                              (conta.pessoaId && nomePorPessoa.get(conta.pessoaId)) ??
+                              "pessoa removida"
+                            }`
+                          : "Compartilhada"}
+                      </span>
+                      <span>
+                        Desde {formatarMesAno(conta.dataInicio)}
+                        {conta.dataFim ? ` até ${formatarMesAno(conta.dataFim)}` : ""}
                       </span>
                     </div>
                   </div>
@@ -285,30 +308,35 @@ export default async function RelatorioFamiliaPage({
 
       <div className="mt-16">
         <div className="card-header">
-          <div className="card-title">💳 Contas Variáveis do mês</div>
+          <div className="card-title">
+            💳 Todas as Contas Variáveis ({todasVariaveisOrdenadas.length})
+          </div>
         </div>
 
         <div className="card">
           <div className="membros-lista">
-            {variaveisMes.length === 0 ? (
+            {todasVariaveisOrdenadas.length === 0 ? (
               <div className="text-slate-400">
-                Nenhuma conta variável neste mês.
+                Nenhuma conta variável cadastrada nesta família.
               </div>
             ) : (
-              variaveisMes.map((conta) => (
+              todasVariaveisOrdenadas.map((conta) => (
                 <div className="membro-item" key={conta.id}>
                   <div>
                     <div className="list-title">{conta.nome}</div>
                     <div className="list-sub">
                       <span>{conta.categoria}</span>
+                      <span>{nomePorPessoa.get(conta.pessoaId) ?? "pessoa removida"}</span>
                       <span>
-                        Parcela {conta.mesInicio === conta.mesFim ? "única" : "mensal"}
+                        {conta.parcelas > 1
+                          ? `${conta.parcelas}x de ${formatarMoeda(conta.valorParcela)} (${formatarMesAno(conta.mesInicio)} a ${formatarMesAno(conta.mesFim)})`
+                          : `à vista em ${formatarData(conta.data)}`}
                       </span>
                     </div>
                   </div>
 
                   <span className="membro-role">
-                    {formatarMoeda(conta.valorParcela)}
+                    {formatarMoeda(conta.valorTotal)}
                   </span>
                 </div>
               ))
