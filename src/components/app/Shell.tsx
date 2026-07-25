@@ -148,7 +148,17 @@ export function Shell({
         <div className="brand">
           <div className="brand-icon-logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-simbolo.png" alt="Fyntra" />
+            <img
+              className="logo-tema-escuro"
+              src="/logo-simbolo.png"
+              alt="Fyntra"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="logo-tema-claro"
+              src="/logo-simbolo-light.png"
+              alt="Fyntra"
+            />
           </div>
 
           <div className="brand-text">

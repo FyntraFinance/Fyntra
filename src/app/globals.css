@@ -218,6 +218,26 @@ body {
         );
 }
 
+/* Duas imagens por trás do mesmo espaço — CSS decide qual mostrar conforme
+   o tema do sistema, sem precisar de JS pra detectar dark/light. */
+.brand-icon-logo .logo-tema-claro {
+
+    display: none;
+}
+
+@media (prefers-color-scheme: light) {
+
+    .brand-icon-logo .logo-tema-escuro {
+
+        display: none;
+    }
+
+    .brand-icon-logo .logo-tema-claro {
+
+        display: block;
+    }
+}
+
 .brand-text {
 
     font-size: 24px;
@@ -3230,10 +3250,7 @@ a.btn-token-config {
 
     justify-content: center;
 
-    /* Fixo (não usa --bg-0): a logo tem traços claros/dourados, então a tela
-       cheia de carregamento fica sempre escura para ela continuar legível,
-       independente do tema do dispositivo. */
-    background: #030712;
+    background: var(--bg-0);
 }
 
 .carregando-area {
@@ -3265,6 +3282,15 @@ a.btn-token-config {
     animation:
         fyntraPulsar 1.8s
         ease-in-out infinite;
+}
+
+@media (prefers-color-scheme: light) {
+
+    .carregando-logo {
+
+        background-image:
+            url("/logo-fyntra-light.png");
+    }
 }
 
 @keyframes fyntraPulsar {
@@ -3373,6 +3399,15 @@ a.btn-token-config {
         url("/logo-simbolo.png")
         center / contain
         no-repeat;
+}
+
+@media (prefers-color-scheme: light) {
+
+    .instalar-icone-img {
+
+        background-image:
+            url("/logo-simbolo-light.png");
+    }
 }
 
 .instalar-texto {
