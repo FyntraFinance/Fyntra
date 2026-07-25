@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["@prisma/client"],
+  serverExternalPackages: ["@prisma/client", "bcryptjs", "nodemailer"],
+
   typescript: {
-    // O type-checker do `next build` tem um bug com src/ no Next 15.5.
-    // Use `npx tsc --noEmit` para verificar tipos localmente.
+    // Bug do Next 15.5.20: o validador gerado em .next/types/validator.ts
+    // aponta para "../../app/(app)/..." e ignora o diretório src/, então o
+    // build falha mesmo com o projeto tipado corretamente.
+    // A validação real de tipos roda em `npm run typecheck` (tsc --noEmit).
     ignoreBuildErrors: true,
   },
 };

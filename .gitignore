@@ -34,7 +34,8 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma
-/prisma/migrations/
+# NOTA: prisma/migrations/ DEVE ser versionado — é o histórico de schema
+# usado pelo `prisma migrate deploy` no build da Vercel.
 
 # VS
 .vs/

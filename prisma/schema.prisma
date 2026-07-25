@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,8 +14,11 @@ model User {
   name      String?
   password  String
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  membros WorkspaceMembro[]
+  membros          WorkspaceMembro[]
+  pessoas          Pessoa[]
+  convitesEnviados Convite[]         @relation("ConvitesEnviados")
 }
 
 model Workspace {
@@ -30,6 +32,7 @@ model Workspace {
   contasFixas     ContaFixa[]
   contasVariaveis ContaVariavel[]
   metas           Meta[]
+  convites        Convite[]
   configuracao    Configuracao?
 }
 
@@ -55,15 +58,51 @@ enum Role {
 model Pessoa {
   id          String    @id @default(cuid())
   nome        String
+  email       String?
   salario     Decimal   @default(0) @db.Decimal(15, 2)
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt   DateTime  @default(now())
 
   contasFixas     ContaFixa[]
   contasVariaveis ContaVariavel[]
+  convites        Convite[]
 
   @@index([workspaceId])
+  @@index([userId])
+}
+
+/// Convite de acesso ao workspace, enviado por e-mail para a pessoa cadastrada.
+model Convite {
+  id             String        @id @default(cuid())
+  email          String
+  token          String        @unique
+  role           Role          @default(MEMBER)
+  status         StatusConvite @default(PENDENTE)
+  workspaceId    String
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  pessoaId       String?
+  pessoa         Pessoa?       @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  convidadoPorId String?
+  convidadoPor   User?         @relation("ConvitesEnviados", fields: [convidadoPorId], references: [id], onDelete: SetNull)
+  expiraEm       DateTime
+  aceitoEm       DateTime?
+  enviadoEm      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([workspaceId])
+  @@index([email])
+  @@index([pessoaId])
+}
+
+enum StatusConvite {
+  PENDENTE
+  ACEITO
+  EXPIRADO
+  CANCELADO
 }
 
 model ContaFixa {
@@ -132,6 +171,7 @@ model Meta {
 model Configuracao {
   id                String    @id @default(cuid())
   divisaoPorSalario Boolean   @default(false)
+  poeApiKey         String?
   openaiApiKey      String?
   workspaceId       String    @unique
   workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)

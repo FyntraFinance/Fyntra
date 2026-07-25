@@ -1,0 +1,193 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+import { adicionarMeses } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
+import type { ResultadoAcao } from "@/lib/tipos";
+import {
+  contaFixaSchema,
+  contaVariavelSchema,
+  primeiroErro,
+} from "@/lib/validators";
+import { obterContexto } from "@/lib/workspace";
+
+function revalidarFixas() {
+  revalidatePath("/contas-fixas");
+  revalidatePath("/dashboard");
+}
+
+function revalidarVariaveis() {
+  revalidatePath("/contas-variaveis");
+  revalidatePath("/dashboard");
+}
+
+async function pessoaValida(pessoaId: string, workspaceId: string) {
+  const pessoa = await prisma.pessoa.findFirst({
+    where: { id: pessoaId, workspaceId },
+    select: { id: true },
+  });
+
+  return Boolean(pessoa);
+}
+
+export async function salvarContaFixa(dados: {
+  id?: string;
+  nome: string;
+  valor: number | string;
+  categoria: string;
+  tipo: "COMPARTILHADA" | "INDIVIDUAL";
+  pessoaId?: string | null;
+  dataInicio: string;
+  observacao?: string;
+}): Promise<ResultadoAcao> {
+  const parsed = contaFixaSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { workspaceId } = await obterContexto();
+  const { id, nome, valor, categoria, tipo, dataInicio, observacao } =
+    parsed.data;
+
+  const pessoaId = tipo === "INDIVIDUAL" ? parsed.data.pessoaId || null : null;
+
+  if (tipo === "INDIVIDUAL" && !pessoaId) {
+    return { ok: false, mensagem: "Selecione a pessoa da conta individual." };
+  }
+
+  if (pessoaId && !(await pessoaValida(pessoaId, workspaceId))) {
+    return { ok: false, mensagem: "Pessoa inválida." };
+  }
+
+  const campos = {
+    nome,
+    valor,
+    categoria,
+    tipo,
+    pessoaId,
+    dataInicio,
+    observacao: observacao || null,
+  };
+
+  if (id) {
+    const atual = await prisma.contaFixa.findFirst({
+      where: { id, workspaceId },
+      select: { id: true },
+    });
+
+    if (!atual) {
+      return { ok: false, mensagem: "Conta não encontrada." };
+    }
+
+    await prisma.contaFixa.update({ where: { id }, data: campos });
+  } else {
+    await prisma.contaFixa.create({ data: { ...campos, workspaceId } });
+  }
+
+  revalidarFixas();
+
+  return { ok: true, mensagem: "Conta fixa salva." };
+}
+
+export async function removerContaFixa(id: string): Promise<ResultadoAcao> {
+  const { workspaceId } = await obterContexto();
+
+  const resultado = await prisma.contaFixa.deleteMany({
+    where: { id, workspaceId },
+  });
+
+  if (resultado.count === 0) {
+    return { ok: false, mensagem: "Conta não encontrada." };
+  }
+
+  revalidarFixas();
+
+  return { ok: true, mensagem: "Conta removida." };
+}
+
+export async function salvarContaVariavel(dados: {
+  id?: string;
+  nome: string;
+  valorTotal: number | string;
+  categoria: string;
+  pessoaId: string;
+  data: string;
+  parcelas: number | string;
+  observacao?: string;
+}): Promise<ResultadoAcao> {
+  const parsed = contaVariavelSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { workspaceId } = await obterContexto();
+  const {
+    id,
+    nome,
+    valorTotal,
+    categoria,
+    pessoaId,
+    data,
+    parcelas,
+    observacao,
+  } = parsed.data;
+
+  if (!(await pessoaValida(pessoaId, workspaceId))) {
+    return { ok: false, mensagem: "Selecione uma pessoa válida." };
+  }
+
+  const mesInicio = data.slice(0, 7);
+
+  const campos = {
+    nome,
+    valorTotal,
+    valorParcela: valorTotal / parcelas,
+    categoria,
+    pessoaId,
+    data,
+    mesInicio,
+    mesFim: adicionarMeses(mesInicio, parcelas - 1),
+    parcelas,
+    observacao: observacao || null,
+  };
+
+  if (id) {
+    const atual = await prisma.contaVariavel.findFirst({
+      where: { id, workspaceId },
+      select: { id: true },
+    });
+
+    if (!atual) {
+      return { ok: false, mensagem: "Conta não encontrada." };
+    }
+
+    await prisma.contaVariavel.update({ where: { id }, data: campos });
+  } else {
+    await prisma.contaVariavel.create({ data: { ...campos, workspaceId } });
+  }
+
+  revalidarVariaveis();
+
+  return { ok: true, mensagem: "Conta variável salva." };
+}
+
+export async function removerContaVariavel(
+  id: string,
+): Promise<ResultadoAcao> {
+  const { workspaceId } = await obterContexto();
+
+  const resultado = await prisma.contaVariavel.deleteMany({
+    where: { id, workspaceId },
+  });
+
+  if (resultado.count === 0) {
+    return { ok: false, mensagem: "Conta não encontrada." };
+  }
+
+  revalidarVariaveis();
+
+  return { ok: true, mensagem: "Conta removida." };
+}
