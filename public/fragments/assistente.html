@@ -1,0 +1,123 @@
+<div class="ai-container">
+
+    <div
+        id="chatIA"
+        class="ai-messages">
+
+        <div class="ai-empty-state">
+
+            <div class="ai-empty-icon">
+                🤖
+            </div>
+
+            <h2>
+                Assistente Financeiro
+            </h2>
+
+            <p>
+                Posso analisar gastos,
+                sobras mensais, comparar
+                salários, criar contas
+                automaticamente e ajudar
+                no planejamento financeiro.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="ai-quick-actions">
+
+        <button
+            class="quick-btn"
+            onclick="
+                preencherPerguntaIA(
+                    'Faça um resumo financeiro do mês.'
+                )
+            ">
+
+            📊 Resumo do mês
+
+        </button>
+
+        <button
+            class="quick-btn"
+            onclick="
+                preencherPerguntaIA(
+                    'Quem está gastando mais?'
+                )
+            ">
+
+            💸 Quem gasta mais?
+
+        </button>
+
+        <button
+            class="quick-btn"
+            onclick="
+                preencherPerguntaIA(
+                    'Como economizar?'
+                )
+            ">
+
+            💡 Economia
+
+        </button>
+
+        <button
+            class="quick-btn"
+            onclick="
+                preencherPerguntaIA(
+                    'Quanto sobra para cada pessoa?'
+                )
+            ">
+
+            👥 Sobras
+
+        </button>
+
+    </div>
+
+    <div class="ai-input-area">
+
+        <button
+            class="btn-token-config"
+            onclick="configurarTokenIA()"
+            title="Configurar token da API">
+
+            ⚙️
+
+        </button>
+
+        <input
+            id="inputIA"
+            type="text"
+            placeholder="
+                Pergunte algo...
+            "
+            onkeydown="
+                if(event.key === 'Enter')
+                enviarPerguntaIA()
+            "
+        />
+
+        <button
+            onclick="
+                enviarPerguntaIA()
+            ">
+
+            <span>
+                ➤
+            </span>
+
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+    inicializarAssistente();
+
+</script>

@@ -1,0 +1,237 @@
+<div class="page-header">
+
+    <h1 class="page-title">
+        ⚙️ Perfil & Configurações
+    </h1>
+
+    <p class="text-muted" style="margin-top: 4px;">
+        Gerencie seus dados e integrações
+    </p>
+
+</div>
+
+<div class="perfil-grid">
+
+    <!-- EXPORTAR DADOS -->
+
+    <div class="card perfil-card">
+
+        <div class="perfil-card-icon" style="background: rgba(16,185,129,.15); color: var(--accent);">
+            📤
+        </div>
+
+        <div class="perfil-card-body">
+
+            <h3 class="perfil-card-title">
+                Exportar Dados
+            </h3>
+
+            <p class="text-muted perfil-card-desc">
+                Baixe um arquivo JSON com todas as suas pessoas, contas fixas, contas variáveis e configurações.
+            </p>
+
+            <div class="perfil-info-box">
+                <span class="perfil-info-label">Inclui:</span>
+                <span class="perfil-info-tags">
+                    <span class="tag">👥 Pessoas</span>
+                    <span class="tag">🏠 Contas Fixas</span>
+                    <span class="tag">💳 Contas Variáveis</span>
+                    <span class="tag">⚙️ Configurações</span>
+                </span>
+            </div>
+
+            <button
+                class="btn btn-primary perfil-btn"
+                onclick="exportarDadosPerfil()">
+                📥 Exportar Backup
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- IMPORTAR DADOS -->
+
+    <div class="card perfil-card">
+
+        <div class="perfil-card-icon" style="background: rgba(59,130,246,.15); color: var(--blue);">
+            📂
+        </div>
+
+        <div class="perfil-card-body">
+
+            <h3 class="perfil-card-title">
+                Importar Dados
+            </h3>
+
+            <p class="text-muted perfil-card-desc">
+                Restaure um backup exportado anteriormente. Os dados atuais serão substituídos.
+            </p>
+
+            <div
+                id="dropZone"
+                class="perfil-drop-zone"
+                onclick="document.getElementById('inputImportar').click()"
+                ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                ondragleave="this.classList.remove('drag-over')"
+                ondrop="onDropArquivo(event)">
+
+                <span class="perfil-drop-icon">📁</span>
+                <span class="perfil-drop-text">Clique ou arraste o arquivo JSON aqui</span>
+
+            </div>
+
+            <input
+                id="inputImportar"
+                type="file"
+                accept=".json,application/json"
+                style="display:none"
+                onchange="onSelecionarArquivo(event)" />
+
+            <button
+                class="btn btn-secondary perfil-btn"
+                style="border-color: var(--blue); color: var(--blue);"
+                onclick="document.getElementById('inputImportar').click()">
+                📂 Selecionar Arquivo
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ZERAR DADOS -->
+
+    <div class="card perfil-card perfil-card-danger">
+
+        <div class="perfil-card-icon" style="background: rgba(239,68,68,.15); color: var(--danger);">
+            🗑️
+        </div>
+
+        <div class="perfil-card-body">
+
+            <h3 class="perfil-card-title">
+                Zerar Todos os Dados
+            </h3>
+
+            <p class="text-muted perfil-card-desc">
+                Remove permanentemente todas as pessoas, contas fixas, contas variáveis e configurações. Esta ação não pode ser desfeita.
+            </p>
+
+            <div class="perfil-danger-aviso">
+                ⚠️ Recomendamos exportar um backup antes de continuar.
+            </div>
+
+            <button
+                class="btn perfil-btn perfil-btn-danger"
+                onclick="zerarTodosDados()">
+                🗑️ Zerar Tudo
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TOKEN POE -->
+
+    <div class="card perfil-card">
+
+        <div class="perfil-card-icon" style="background: rgba(139,92,246,.15); color: var(--purple);">
+            🤖
+        </div>
+
+        <div class="perfil-card-body">
+
+            <h3 class="perfil-card-title">
+                Token da Poe IA
+            </h3>
+
+            <p class="text-muted perfil-card-desc">
+                Configure seu token de acesso à API da Poe para usar o Assistente IA financeiro.
+            </p>
+
+            <div id="tokenStatus" class="perfil-token-status">
+            </div>
+
+            <div class="perfil-input-group">
+
+                <input
+                    id="inputTokenPoe"
+                    type="password"
+                    class="input"
+                    placeholder="Cole seu token da Poe aqui"
+                    autocomplete="off" />
+
+                <button
+                    class="perfil-toggle-visibility"
+                    type="button"
+                    onclick="alternarVisibilidadeToken()"
+                    title="Mostrar/ocultar token">
+                    👁
+                </button>
+
+            </div>
+
+            <div class="perfil-btn-row">
+
+                <button
+                    class="btn btn-primary perfil-btn-flex"
+                    style="background: var(--purple); border-color: var(--purple);"
+                    onclick="salvarTokenPoe()">
+                    💾 Salvar Token
+                </button>
+
+                <button
+                    id="btnLimparToken"
+                    class="btn btn-secondary perfil-btn-flex"
+                    style="border-color: var(--danger); color: var(--danger);"
+                    onclick="limparTokenPoe()">
+                    🗑 Limpar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- METAS FINANCEIRAS -->
+
+<div class="card perfil-metas-card mt-20">
+
+    <div class="perfil-metas-header">
+
+        <div class="perfil-metas-title-group">
+
+            <div class="perfil-card-icon" style="background: rgba(245,158,11,.15); color: #f59e0b; margin: 0;">
+                🎯
+            </div>
+
+            <div>
+
+                <h3 class="perfil-card-title">
+                    Metas Financeiras
+                </h3>
+
+                <p class="text-muted" style="font-size:13px;">
+                    Defina objetivos e acompanhe o progresso automaticamente no dashboard.
+                </p>
+
+            </div>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            style="background: #f59e0b; border-color: #f59e0b; white-space: nowrap;"
+            onclick="abrirModalNovaMeta()">
+            + Nova Meta
+        </button>
+
+    </div>
+
+    <div id="listaMetasPerfil" class="perfil-metas-lista">
+    </div>
+
+</div>
