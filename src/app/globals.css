@@ -3067,6 +3067,11 @@ select.input option {
     border-bottom: none;
 }
 
+.ia-confirm-tag {
+
+    margin-bottom: 16px;
+}
+
 .ai-parsed-item span:last-child {
 
     font-weight: 700;

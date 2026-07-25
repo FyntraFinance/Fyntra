@@ -91,3 +91,51 @@ export const CATEGORIAS_VARIAVEIS = [
   "Saúde",
   "Outros",
 ];
+
+/**
+ * Cadastro que o assistente de IA extraiu de uma mensagem em linguagem
+ * natural, já resolvido (nome de pessoa virou `pessoaId`) e pronto para ser
+ * enviado à action de salvar correspondente após confirmação do usuário.
+ */
+export type IntentCadastro =
+  | {
+      tipo: "pessoa";
+      dados: { nome: string; email?: string; salario: number };
+    }
+  | {
+      tipo: "contaFixa";
+      dados: {
+        nome: string;
+        valor: number;
+        categoria: string;
+        tipoConta: TipoContaFixa;
+        pessoaId: string | null;
+        pessoaNome: string | null;
+        dataInicio: string;
+        observacao?: string;
+      };
+    }
+  | {
+      tipo: "contaVariavel";
+      dados: {
+        nome: string;
+        valorTotal: number;
+        categoria: string;
+        pessoaId: string;
+        pessoaNome: string;
+        data: string;
+        parcelas: number;
+        observacao?: string;
+      };
+    }
+  | {
+      tipo: "meta";
+      dados: {
+        nome: string;
+        emoji: string;
+        valorAlvo: number;
+        valorAtual: number;
+        contribuicaoMensal: number | null;
+        cor: string;
+      };
+    };

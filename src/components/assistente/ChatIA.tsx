@@ -4,11 +4,79 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import { criarContasDetectadas, perguntarIa } from "@/actions/ia";
+import { salvarContaFixa, salvarContaVariavel } from "@/actions/contas";
+import { salvarMeta } from "@/actions/metas";
+import { salvarPessoa } from "@/actions/pessoas";
 import { Markdown } from "@/components/assistente/Markdown";
+import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { formatarMoeda } from "@/lib/format";
+import type { IntentCadastro } from "@/lib/tipos";
 
 type ContaDetectada = { nome: string; valor: number };
+
+const TITULOS_INTENT: Record<IntentCadastro["tipo"], string> = {
+  pessoa: "Nova pessoa",
+  contaFixa: "Nova conta fixa",
+  contaVariavel: "Nova conta variável",
+  meta: "Nova meta",
+};
+
+/** Linhas de resumo mostradas no popup de confirmação, por tipo de cadastro. */
+function linhasIntent(intent: IntentCadastro): { rotulo: string; valor: string }[] {
+  switch (intent.tipo) {
+    case "pessoa":
+      return [
+        { rotulo: "Nome", valor: intent.dados.nome },
+        ...(intent.dados.email
+          ? [{ rotulo: "E-mail", valor: intent.dados.email }]
+          : []),
+        { rotulo: "Salário", valor: formatarMoeda(intent.dados.salario) },
+      ];
+
+    case "contaFixa":
+      return [
+        { rotulo: "Nome", valor: intent.dados.nome },
+        { rotulo: "Valor", valor: formatarMoeda(intent.dados.valor) },
+        { rotulo: "Categoria", valor: intent.dados.categoria },
+        {
+          rotulo: "Tipo",
+          valor:
+            intent.dados.tipoConta === "INDIVIDUAL"
+              ? `Individual — ${intent.dados.pessoaNome}`
+              : "Compartilhada",
+        },
+        { rotulo: "Início", valor: intent.dados.dataInicio },
+      ];
+
+    case "contaVariavel":
+      return [
+        { rotulo: "Nome", valor: intent.dados.nome },
+        { rotulo: "Valor total", valor: formatarMoeda(intent.dados.valorTotal) },
+        { rotulo: "Categoria", valor: intent.dados.categoria },
+        { rotulo: "Pessoa", valor: intent.dados.pessoaNome },
+        { rotulo: "Parcelas", valor: String(intent.dados.parcelas) },
+        { rotulo: "Data", valor: intent.dados.data },
+      ];
+
+    case "meta":
+      return [
+        { rotulo: "Nome", valor: `${intent.dados.emoji} ${intent.dados.nome}` },
+        { rotulo: "Valor alvo", valor: formatarMoeda(intent.dados.valorAlvo) },
+        ...(intent.dados.valorAtual
+          ? [{ rotulo: "Valor atual", valor: formatarMoeda(intent.dados.valorAtual) }]
+          : []),
+        ...(intent.dados.contribuicaoMensal
+          ? [
+              {
+                rotulo: "Contribuição mensal",
+                valor: formatarMoeda(intent.dados.contribuicaoMensal),
+              },
+            ]
+          : []),
+      ];
+  }
+}
 
 type Mensagem = {
   id: number;
@@ -53,6 +121,7 @@ export function ChatIA({
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [pergunta, setPergunta] = useState("");
   const [digitando, setDigitando] = useState(false);
+  const [intentAtivo, setIntentAtivo] = useState<IntentCadastro | null>(null);
 
   const proximoId = useRef(1);
   const areaMensagens = useRef<HTMLDivElement>(null);
@@ -88,10 +157,14 @@ export function ChatIA({
     setDigitando(true);
 
     iniciar(async () => {
-      const resultado = await perguntarIa(conteudo);
+      const resultado = await perguntarIa(conteudo, mes);
 
       setDigitando(false);
       adicionar({ autor: "ia", texto: resultado.resposta });
+
+      if (resultado.intent) {
+        setIntentAtivo(resultado.intent);
+      }
     });
   }
 
@@ -100,6 +173,51 @@ export function ChatIA({
       const resultado = await criarContasDetectadas(contas, mes);
 
       mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
+    });
+  }
+
+  function cancelarIntent() {
+    setIntentAtivo(null);
+    adicionar({ autor: "ia", texto: "Cadastro cancelado." });
+  }
+
+  function confirmarIntent() {
+    if (!intentAtivo) return;
+
+    const intent = intentAtivo;
+
+    iniciar(async () => {
+      const resultado =
+        intent.tipo === "pessoa"
+          ? await salvarPessoa(intent.dados)
+          : intent.tipo === "contaFixa"
+            ? await salvarContaFixa({
+                nome: intent.dados.nome,
+                valor: intent.dados.valor,
+                categoria: intent.dados.categoria,
+                tipo: intent.dados.tipoConta,
+                pessoaId: intent.dados.pessoaId,
+                dataInicio: intent.dados.dataInicio,
+                observacao: intent.dados.observacao,
+              })
+            : intent.tipo === "contaVariavel"
+              ? await salvarContaVariavel({
+                  nome: intent.dados.nome,
+                  valorTotal: intent.dados.valorTotal,
+                  categoria: intent.dados.categoria,
+                  pessoaId: intent.dados.pessoaId,
+                  data: intent.dados.data,
+                  parcelas: intent.dados.parcelas,
+                  observacao: intent.dados.observacao,
+                })
+              : await salvarMeta(intent.dados);
+
+      mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
+      setIntentAtivo(null);
+
+      if (resultado.ok) {
+        adicionar({ autor: "ia", texto: `✅ ${resultado.mensagem}` });
+      }
     });
   }
 
@@ -225,6 +343,46 @@ export function ChatIA({
           <span>➤</span>
         </button>
       </div>
+
+      {intentAtivo ? (
+        <Modal
+          aberto
+          titulo={`Confirmar ${TITULOS_INTENT[intentAtivo.tipo].toLowerCase()}`}
+          onFechar={cancelarIntent}
+          footer={
+            <>
+              <button
+                className="btn btn-secondary"
+                type="button"
+                onClick={cancelarIntent}
+                disabled={pendente}
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={confirmarIntent}
+                disabled={pendente}
+              >
+                {pendente ? "Salvando..." : "Confirmar"}
+              </button>
+            </>
+          }
+        >
+          <div className="ia-confirm-tag">
+            <span className="tag">{TITULOS_INTENT[intentAtivo.tipo]}</span>
+          </div>
+
+          {linhasIntent(intentAtivo).map((linha) => (
+            <div className="ai-parsed-item" key={linha.rotulo}>
+              <span>{linha.rotulo}</span>
+              <span>{linha.valor}</span>
+            </div>
+          ))}
+        </Modal>
+      ) : null}
     </div>
   );
 }
