@@ -27,6 +27,20 @@ export const aceitarConviteSchema = z.object({
   senha: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
 });
 
+export const esqueciSenhaSchema = z.object({
+  email: z.string().trim().toLowerCase().email("E-mail inválido"),
+});
+
+export const redefinirSenhaSchema = z.object({
+  token: z.string().min(10, "Link inválido"),
+  senha: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
+});
+
+export const trocarSenhaSchema = z.object({
+  senhaAtual: z.string().min(1, "Informe a senha atual"),
+  novaSenha: z.string().min(6, "A nova senha deve ter ao menos 6 caracteres"),
+});
+
 export const pessoaSchema = z.object({
   id: z.string().optional(),
   nome: z.string().trim().min(1, "Informe o nome"),

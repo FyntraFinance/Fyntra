@@ -1,17 +1,26 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { AuthError } from "next-auth";
 import bcrypt from "bcryptjs";
 
 import { signIn, signOut } from "@/lib/auth";
+import { emailConfigurado, enviarEmailRedefinicaoSenha } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
+import { obterBaseUrl } from "@/lib/url";
 import {
   aceitarConviteSchema,
+  esqueciSenhaSchema,
   loginSchema,
   primeiroErro,
+  redefinirSenhaSchema,
   registroSchema,
+  trocarSenhaSchema,
 } from "@/lib/validators";
 import type { ResultadoAcao } from "@/lib/tipos";
+import { obterContexto } from "@/lib/workspace";
+
+const HORAS_VALIDADE_REDEFINICAO = 1;
 
 export async function entrar(dados: {
   email: string;
@@ -103,6 +112,150 @@ export async function registrar(dados: {
 
 export async function sair() {
   await signOut({ redirectTo: "/login" });
+}
+
+/**
+ * Sempre responde com a mesma mensagem genérica, exista ou não a conta —
+ * evita que alguém descubra por tentativa quais e-mails estão cadastrados.
+ */
+export async function solicitarRecuperacaoSenha(dados: {
+  email: string;
+}): Promise<ResultadoAcao> {
+  const parsed = esqueciSenhaSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { email } = parsed.data;
+
+  const mensagemPadrao =
+    "Se existir uma conta com esse e-mail, enviamos um link de redefinição.";
+
+  const usuario = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, name: true },
+  });
+
+  if (!usuario) {
+    return { ok: true, mensagem: mensagemPadrao };
+  }
+
+  const token = randomBytes(32).toString("hex");
+
+  const expiraEm = new Date();
+  expiraEm.setHours(expiraEm.getHours() + HORAS_VALIDADE_REDEFINICAO);
+
+  await prisma.redefinicaoSenha.create({
+    data: { token, userId: usuario.id, expiraEm },
+  });
+
+  const link = `${obterBaseUrl()}/redefinir-senha/${token}`;
+
+  if (!emailConfigurado()) {
+    return {
+      ok: false,
+      mensagem:
+        "Envio de e-mail não configurado (GMAIL_USER/GMAIL_APP_PASSWORD). Copie o link e use manualmente.",
+      link,
+    };
+  }
+
+  try {
+    await enviarEmailRedefinicaoSenha({
+      para: email,
+      nome: usuario.name ?? "",
+      url: link,
+    });
+
+    return { ok: true, mensagem: mensagemPadrao };
+  } catch {
+    return {
+      ok: false,
+      mensagem: "Não conseguimos enviar o e-mail agora. Tente novamente em instantes.",
+    };
+  }
+}
+
+export async function redefinirSenha(dados: {
+  token: string;
+  senha: string;
+}): Promise<ResultadoAcao> {
+  const parsed = redefinirSenhaSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { token, senha } = parsed.data;
+
+  const redefinicao = await prisma.redefinicaoSenha.findUnique({
+    where: { token },
+  });
+
+  if (!redefinicao || redefinicao.usadoEm) {
+    return { ok: false, mensagem: "Link inválido ou já utilizado." };
+  }
+
+  if (redefinicao.expiraEm < new Date()) {
+    return { ok: false, mensagem: "Este link expirou. Peça uma nova redefinição." };
+  }
+
+  const hash = await bcrypt.hash(senha, 10);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: redefinicao.userId },
+      data: { password: hash },
+    }),
+    prisma.redefinicaoSenha.update({
+      where: { id: redefinicao.id },
+      data: { usadoEm: new Date() },
+    }),
+  ]);
+
+  return {
+    ok: true,
+    mensagem: "Senha redefinida! Você já pode entrar com a nova senha.",
+  };
+}
+
+export async function trocarSenha(dados: {
+  senhaAtual: string;
+  novaSenha: string;
+}): Promise<ResultadoAcao> {
+  const parsed = trocarSenhaSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { userId } = await obterContexto();
+  const { senhaAtual, novaSenha } = parsed.data;
+
+  const usuario = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
+
+  if (!usuario) {
+    return { ok: false, mensagem: "Usuário não encontrado." };
+  }
+
+  const senhaCorreta = await bcrypt.compare(senhaAtual, usuario.password);
+
+  if (!senhaCorreta) {
+    return { ok: false, mensagem: "Senha atual incorreta." };
+  }
+
+  const hash = await bcrypt.hash(novaSenha, 10);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hash },
+  });
+
+  return { ok: true, mensagem: "Senha alterada com sucesso." };
 }
 
 export async function aceitarConvite(dados: {

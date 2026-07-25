@@ -5,12 +5,13 @@ import type { NextAuthConfig } from "next-auth";
  * Não pode importar Prisma nem bcrypt — só o `auth.ts` faz isso.
  */
 
-const ROTAS_AUTH = ["/login", "/registro"];
+const ROTAS_AUTH = ["/login", "/registro", "/recuperar-senha"];
 
 function ehRotaPublica(pathname: string) {
   return (
     ROTAS_AUTH.includes(pathname) ||
     pathname.startsWith("/convite/") ||
+    pathname.startsWith("/redefinir-senha/") ||
     pathname.startsWith("/api/auth")
   );
 }

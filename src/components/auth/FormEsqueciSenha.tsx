@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 
-import { entrar } from "@/actions/auth";
+import { solicitarRecuperacaoSenha } from "@/actions/auth";
 
-export function FormLogin() {
+export function FormEsqueciSenha() {
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [enviado, setEnviado] = useState<string | null>(null);
+  const [link, setLink] = useState<string | undefined>();
   const [pendente, iniciar] = useTransition();
 
   function enviar(evento: React.FormEvent) {
@@ -16,12 +16,32 @@ export function FormLogin() {
     setErro("");
 
     iniciar(async () => {
-      const resultado = await entrar({ email, senha });
+      const resultado = await solicitarRecuperacaoSenha({ email });
 
-      if (!resultado.ok) {
+      if (!resultado.ok && !resultado.link) {
         setErro(resultado.mensagem);
+        return;
       }
+
+      setEnviado(resultado.mensagem);
+      setLink(resultado.link);
     });
+  }
+
+  if (enviado) {
+    return (
+      <div className="auth-form">
+        <div className="auth-alerta ok">{enviado}</div>
+
+        {link ? (
+          <div className="auth-field">
+            <label className="form-label">Link de redefinição</label>
+
+            <input className="input" readOnly value={link} onFocus={(e) => e.target.select()} />
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   return (
@@ -44,34 +64,8 @@ export function FormLogin() {
         />
       </div>
 
-      <div className="auth-field">
-        <div className="flex-between">
-          <label className="form-label" htmlFor="senha">
-            Senha
-          </label>
-
-          <Link
-            href="/recuperar-senha"
-            className="auth-link"
-            style={{ fontSize: 13 }}
-          >
-            Esqueci minha senha
-          </Link>
-        </div>
-
-        <input
-          id="senha"
-          className="input"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={senha}
-          onChange={(evento) => setSenha(evento.target.value)}
-        />
-      </div>
-
       <button className="btn btn-primary" type="submit" disabled={pendente}>
-        {pendente ? "Entrando..." : "Entrar"}
+        {pendente ? "Enviando..." : "Enviar link de redefinição"}
       </button>
     </form>
   );

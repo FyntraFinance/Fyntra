@@ -17,9 +17,23 @@ model User {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
 
-  membros          WorkspaceMembro[]
-  pessoas          Pessoa[]
-  convitesEnviados Convite[]         @relation("ConvitesEnviados")
+  membros            WorkspaceMembro[]
+  pessoas            Pessoa[]
+  convitesEnviados   Convite[]          @relation("ConvitesEnviados")
+  redefinicoesSenha  RedefinicaoSenha[]
+}
+
+/// Token de link para "esqueci minha senha", enviado por e-mail.
+model RedefinicaoSenha {
+  id       String    @id @default(cuid())
+  token    String    @unique
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiraEm DateTime
+  usadoEm  DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 /// Papel do usuário no sistema como um todo (não confundir com `Role`, que é

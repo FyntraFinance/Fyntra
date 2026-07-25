@@ -1,6 +1,7 @@
 import { ListaMembros } from "@/components/perfil/ListaMembros";
 import { ListaMetas } from "@/components/perfil/ListaMetas";
 import { PainelPerfil } from "@/components/perfil/PainelPerfil";
+import { TrocarSenha } from "@/components/perfil/TrocarSenha";
 import { listarMembros, listarMetas, obterConfiguracao } from "@/lib/dados";
 import { obterContexto, podeAdministrar } from "@/lib/workspace";
 
@@ -28,6 +29,10 @@ export default async function PerfilPage() {
       </div>
 
       <PainelPerfil temTokenIa={configuracao.temTokenIa} />
+
+      <div className="perfil-grid mt-16">
+        <TrocarSenha />
+      </div>
 
       <ListaMembros
         membros={membros}

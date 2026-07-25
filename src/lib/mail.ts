@@ -78,6 +78,86 @@ export async function enviarEmailConvite({
   });
 }
 
+type RedefinicaoSenhaEmail = {
+  para: string;
+  nome: string;
+  url: string;
+};
+
+export async function enviarEmailRedefinicaoSenha({
+  para,
+  nome,
+  url,
+}: RedefinicaoSenhaEmail) {
+  const transporter = obterTransporter();
+
+  await transporter.sendMail({
+    from: `"Fyntra" <${process.env.GMAIL_USER}>`,
+    to: para,
+    subject: "Redefinição de senha — Fyntra",
+    text: [
+      `Olá${nome ? `, ${nome}` : ""}!`,
+      "",
+      "Recebemos um pedido para redefinir a senha da sua conta Fyntra.",
+      "",
+      "Acesse o link abaixo para escolher uma nova senha:",
+      url,
+      "",
+      "Este link expira em 1 hora. Se você não pediu isso, pode ignorar este e-mail.",
+    ].join("\n"),
+    html: montarHtmlRedefinicaoSenha({ nome, url }),
+  });
+}
+
+function montarHtmlRedefinicaoSenha({
+  nome,
+  url,
+}: {
+  nome: string;
+  url: string;
+}) {
+  return `<!doctype html>
+<html lang="pt-BR">
+  <body style="margin:0;padding:32px 16px;background:#030712;font-family:Inter,Segoe UI,Arial,sans-serif;color:#f8fafc;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;">
+      <tr>
+        <td style="padding:32px 32px 8px;">
+          <div style="display:inline-block;width:48px;height:48px;line-height:48px;text-align:center;border-radius:14px;background:linear-gradient(135deg,#10b981,#3b82f6);font-size:24px;">🔒</div>
+          <div style="margin-top:16px;font-size:24px;font-weight:800;">Fyn<span style="color:#10b981;">tra</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:8px 32px 0;">
+          <h1 style="margin:16px 0 8px;font-size:20px;font-weight:700;">Olá${nome ? `, ${escaparHtml(nome)}` : ""}!</h1>
+          <p style="margin:0;color:#94a3b8;font-size:15px;line-height:1.6;">
+            Recebemos um pedido para redefinir a senha da sua conta no Fyntra.
+            Se foi você, clique no botão abaixo para escolher uma nova senha.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:24px 32px;">
+          <a href="${url}" style="display:block;padding:14px 24px;background:#10b981;color:#04170f;text-decoration:none;text-align:center;font-weight:700;font-size:15px;border-radius:12px;">
+            Redefinir senha
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 32px 32px;">
+          <p style="margin:0 0 12px;color:#64748b;font-size:13px;line-height:1.6;">
+            Ou copie e cole este endereço no navegador:<br />
+            <span style="color:#3b82f6;word-break:break-all;">${url}</span>
+          </p>
+          <p style="margin:0;color:#64748b;font-size:12px;">
+            Este link expira em 1 hora. Se você não pediu essa redefinição, pode ignorar este e-mail com segurança.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 function montarHtmlConvite({
   nomePessoa,
   nomeConvidador,
