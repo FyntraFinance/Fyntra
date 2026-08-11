@@ -16,7 +16,7 @@ export default async function AdminPage({
   await exigirAdminSistema();
 
   const { q } = await searchParams;
-  const familias = await listarFamiliasAdmin(q);
+  const { familias, ocultas } = await listarFamiliasAdmin(q);
 
   return (
     <>
@@ -75,6 +75,13 @@ export default async function AdminPage({
           )}
         </div>
       </div>
+
+      {ocultas > 0 ? (
+        <p className="text-muted mt-16" style={{ fontSize: 13 }}>
+          🔒 {ocultas} família(s) optaram por não compartilhar os dados com a
+          contabilidade e não aparecem nesta lista.
+        </p>
+      ) : null}
     </>
   );
 }

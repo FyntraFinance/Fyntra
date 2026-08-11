@@ -7,7 +7,7 @@ import { adicionarMeses, obterMesAtual } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import type { ResultadoAcao } from "@/lib/tipos";
 import { primeiroErro, tokenIaSchema } from "@/lib/validators";
-import { obterContexto } from "@/lib/workspace";
+import { obterContexto, podeAdministrar } from "@/lib/workspace";
 
 function revalidarTudo() {
   revalidatePath("/dashboard");
@@ -49,6 +49,40 @@ export async function limparTokenIa(): Promise<ResultadoAcao> {
   revalidatePath("/perfil");
 
   return { ok: true, mensagem: "Token removido." };
+}
+
+/**
+ * Consentimento da família para que a contabilidade veja os dados financeiros
+ * no painel contábil. Desligado, a família deixa de aparecer para o ADMIN do
+ * sistema. Só quem administra o workspace decide por todos.
+ */
+export async function definirCompartilhamentoContadora(
+  compartilhar: boolean,
+): Promise<ResultadoAcao> {
+  const { workspaceId, role } = await obterContexto();
+
+  if (!podeAdministrar(role)) {
+    return {
+      ok: false,
+      mensagem: "Apenas o dono ou um administrador da família pode alterar isso.",
+    };
+  }
+
+  await prisma.configuracao.upsert({
+    where: { workspaceId },
+    create: { workspaceId, compartilharComContadora: compartilhar },
+    update: { compartilharComContadora: compartilhar },
+  });
+
+  revalidatePath("/perfil");
+  revalidatePath("/admin");
+
+  return {
+    ok: true,
+    mensagem: compartilhar
+      ? "Compartilhamento com a contabilidade ativado."
+      : "Compartilhamento desativado. Seus dados não aparecem mais para a contabilidade.",
+  };
 }
 
 export async function zerarDados(): Promise<ResultadoAcao> {

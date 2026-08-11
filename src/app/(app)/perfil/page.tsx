@@ -28,7 +28,11 @@ export default async function PerfilPage() {
         </p>
       </div>
 
-      <PainelPerfil temTokenIa={configuracao.temTokenIa} />
+      <PainelPerfil
+        temTokenIa={configuracao.temTokenIa}
+        compartilharComContadora={configuracao.compartilharComContadora}
+        podeAlterarCompartilhamento={podeAdministrar(contexto.role)}
+      />
 
       <div className="perfil-grid mt-16">
         <TrocarSenha />

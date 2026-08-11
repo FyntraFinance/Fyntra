@@ -194,6 +194,9 @@ model Meta {
 model Configuracao {
   id                String    @id @default(cuid())
   divisaoPorSalario Boolean   @default(false)
+  /// Consentimento da família para que a contabilidade (ADMIN do sistema) veja
+  /// os valores no painel contábil. Desmarcado, a família some do painel.
+  compartilharComContadora Boolean @default(true)
   poeApiKey         String?
   openaiApiKey      String?
   workspaceId       String    @unique

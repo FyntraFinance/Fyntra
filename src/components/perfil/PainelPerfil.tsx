@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 
 import {
+  definirCompartilhamentoContadora,
   importarBackup,
   limparTokenIa,
   obterBackup,
@@ -21,12 +22,22 @@ type Backup = {
   metas?: unknown[];
 };
 
-export function PainelPerfil({ temTokenIa }: { temTokenIa: boolean }) {
+export function PainelPerfil({
+  temTokenIa,
+  compartilharComContadora,
+  podeAlterarCompartilhamento,
+}: {
+  temTokenIa: boolean;
+  compartilharComContadora: boolean;
+  /** Só o dono/administrador da família decide o compartilhamento por todos. */
+  podeAlterarCompartilhamento: boolean;
+}) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
 
   const inputArquivo = useRef<HTMLInputElement>(null);
 
+  const [compartilhando, setCompartilhando] = useState(compartilharComContadora);
   const [token, setToken] = useState("");
   const [tokenVisivel, setTokenVisivel] = useState(false);
   const [confirmandoLimparToken, setConfirmandoLimparToken] = useState(false);
@@ -87,6 +98,20 @@ export function PainelPerfil({ temTokenIa }: { temTokenIa: boolean }) {
 
       if (resultado.ok) {
         setBackup(null);
+      }
+    });
+  }
+
+  function alternarCompartilhamento(ativo: boolean) {
+    setCompartilhando(ativo);
+
+    iniciar(async () => {
+      const resultado = await definirCompartilhamentoContadora(ativo);
+
+      mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
+
+      if (!resultado.ok) {
+        setCompartilhando(!ativo);
       }
     });
   }
@@ -244,6 +269,62 @@ export function PainelPerfil({ temTokenIa }: { temTokenIa: boolean }) {
             >
               📂 Selecionar Arquivo
             </button>
+          </div>
+        </div>
+
+        <div className="card perfil-card">
+          <div
+            className="perfil-card-icon"
+            style={{ background: "rgba(6,182,212,.15)", color: "#06b6d4" }}
+          >
+            🧮
+          </div>
+
+          <div className="perfil-card-body">
+            <h3 className="perfil-card-title">Compartilhar com a Contabilidade</h3>
+
+            <p className="text-muted perfil-card-desc">
+              Quando ativado, a contabilidade que acompanha as famílias pode ver
+              o relatório financeiro desta família — salários, contas, metas e
+              quem tem acesso. Desativado, nada disso aparece para ela.
+            </p>
+
+            <label className="perfil-switch-row">
+              <input
+                className="perfil-switch-input"
+                type="checkbox"
+                checked={compartilhando}
+                disabled={pendente || !podeAlterarCompartilhamento}
+                onChange={(evento) =>
+                  alternarCompartilhamento(evento.target.checked)
+                }
+              />
+
+              <span className="perfil-switch" aria-hidden="true" />
+
+              <span className="perfil-switch-label">
+                Autorizo o compartilhamento dos meus dados financeiros
+              </span>
+            </label>
+
+            <div className="perfil-token-status">
+              {compartilhando ? (
+                <span className="perfil-status ok">
+                  ✅ Compartilhando com a contabilidade
+                </span>
+              ) : (
+                <span className="perfil-status warn">
+                  🔒 Dados privados — a contabilidade não vê nada
+                </span>
+              )}
+            </div>
+
+            {podeAlterarCompartilhamento ? null : (
+              <p className="text-muted" style={{ fontSize: 12 }}>
+                Apenas o dono ou um administrador da família pode alterar esta
+                opção.
+              </p>
+            )}
           </div>
         </div>
 

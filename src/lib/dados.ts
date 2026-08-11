@@ -121,11 +121,17 @@ export async function listarMembros(
 export async function obterConfiguracao(workspaceId: string) {
   const configuracao = await prisma.configuracao.findUnique({
     where: { workspaceId },
-    select: { divisaoPorSalario: true, poeApiKey: true },
+    select: {
+      divisaoPorSalario: true,
+      compartilharComContadora: true,
+      poeApiKey: true,
+    },
   });
 
   return {
     divisaoPorSalario: configuracao?.divisaoPorSalario ?? false,
+    // Workspace sem registro de configuração cai no padrão do schema.
+    compartilharComContadora: configuracao?.compartilharComContadora ?? true,
     temTokenIa: Boolean(configuracao?.poeApiKey),
   };
 }

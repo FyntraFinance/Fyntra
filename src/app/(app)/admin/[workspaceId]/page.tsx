@@ -60,6 +60,29 @@ export default async function RelatorioFamiliaPage({
     notFound();
   }
 
+  // Nenhuma consulta financeira é feita sem o consentimento da família.
+  if (familia.estado === "bloqueado") {
+    return (
+      <>
+        <div className="page-header">
+          <Link href="/admin" className="auth-link">
+            ← Voltar para as famílias
+          </Link>
+
+          <h1 className="page-title mt-4">🔒 Relatório indisponível</h1>
+        </div>
+
+        <div className="card mt-16">
+          <p className="text-muted">
+            Esta família desativou o compartilhamento de informações com a
+            contabilidade nas configurações dela. Os dados financeiros só voltam
+            a aparecer aqui se a opção for reativada pelo dono da família.
+          </p>
+        </div>
+      </>
+    );
+  }
+
   const [pessoas, todasFixas, todasVariaveis, metas] = await Promise.all([
     listarPessoas(workspaceId),
     listarContasFixas(workspaceId),
