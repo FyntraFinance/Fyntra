@@ -1,3 +1,4 @@
+import { BotaoStatus } from "@/components/contas/BotaoStatus";
 import {
   GraficoAnual,
   GraficoCategorias,
@@ -11,6 +12,8 @@ type Movimentacao = {
   nome: string;
   categoria: string;
   valor: number;
+  tipo: "FIXA" | "VARIAVEL";
+  pago: boolean;
 };
 
 export function DashboardConteudo({
@@ -21,6 +24,7 @@ export function DashboardConteudo({
   evolucaoAnual,
   dadosResumo,
   movimentacoes,
+  mes,
 }: {
   totais: Totais;
   resumoPessoas: ResumoPessoa[];
@@ -34,6 +38,7 @@ export function DashboardConteudo({
   }[];
   dadosResumo: { nome: string; valor: number; cor: string }[];
   movimentacoes: Movimentacao[];
+  mes: string;
 }) {
   return (
     <>
@@ -43,6 +48,14 @@ export function DashboardConteudo({
           <div className="metric-label">Total Salários</div>
           <div className="metric-value">
             {formatarMoeda(totais.totalSalarios)}
+          </div>
+        </div>
+
+        <div className="card metric-card c-green">
+          <div className="metric-icon green">💵</div>
+          <div className="metric-label">Ganhos Extras</div>
+          <div className="metric-value">
+            {formatarMoeda(totais.totalGanhosExtras)}
           </div>
         </div>
 
@@ -215,6 +228,16 @@ export function DashboardConteudo({
                 </div>
 
                 <div className="space-y-2 text-sm">
+                  {pessoa.ganhosExtras > 0 ? (
+                    <div className="flex-between">
+                      <span>Ganhos extras</span>
+
+                      <strong className="text-emerald-400">
+                        + {formatarMoeda(pessoa.ganhosExtras)}
+                      </strong>
+                    </div>
+                  ) : null}
+
                   <div className="flex-between">
                     <span>Gastos</span>
 
@@ -226,16 +249,23 @@ export function DashboardConteudo({
                   <div className="flex-between">
                     <span>Sobra</span>
 
-                    <strong className="text-emerald-400">
+                    <strong
+                      className={
+                        pessoa.sobra < 0 ? "text-red-400" : "text-emerald-400"
+                      }
+                    >
                       {formatarMoeda(pessoa.sobra)}
                     </strong>
                   </div>
 
-                  <div className="flex-between">
-                    <span>Livre por dia</span>
+                  {/* Sem sobra não existe "livre por dia": o rótulo some. */}
+                  {pessoa.livrePorDia > 0 ? (
+                    <div className="flex-between">
+                      <span>Livre por dia</span>
 
-                    <strong>{formatarMoeda(pessoa.livrePorDia)}</strong>
-                  </div>
+                      <strong>{formatarMoeda(pessoa.livrePorDia)}</strong>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))
@@ -262,6 +292,15 @@ export function DashboardConteudo({
 
                   <div className="text-xs text-slate-400">
                     {conta.categoria || "Outros"}
+                  </div>
+
+                  <div className="mt-8">
+                    <BotaoStatus
+                      tipo={conta.tipo}
+                      contaId={conta.id}
+                      mes={mes}
+                      pago={conta.pago}
+                    />
                   </div>
                 </div>
 

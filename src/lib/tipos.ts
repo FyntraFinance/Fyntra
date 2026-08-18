@@ -2,10 +2,17 @@ import type {
   PapelUsuario,
   Role,
   StatusConvite,
+  StatusPagamento,
   TipoContaFixa,
 } from "@prisma/client";
 
-export type { PapelUsuario, Role, StatusConvite, TipoContaFixa };
+export type {
+  PapelUsuario,
+  Role,
+  StatusConvite,
+  StatusPagamento,
+  TipoContaFixa,
+};
 
 /**
  * DTOs serializáveis: o Prisma devolve `Decimal` nos campos monetários, que não
@@ -62,6 +69,62 @@ export type MetaDTO = {
   cor: string;
 };
 
+export type GanhoExtraDTO = {
+  id: string;
+  nome: string;
+  valor: number;
+  categoria: string;
+  pessoaId: string;
+  data: string;
+  mes: string;
+  recorrente: boolean;
+  observacao: string | null;
+};
+
+export type ParticipanteEventoDTO = {
+  id: string;
+  nome: string;
+  /** Preenchido quando o participante é alguém da família. */
+  pessoaId: string | null;
+  /** A pessoa vinculada já aceitou o convite e usa o app. */
+  temAcesso: boolean;
+};
+
+export type GastoEventoDTO = {
+  id: string;
+  nome: string;
+  valor: number;
+  categoria: string;
+  data: string;
+  observacao: string | null;
+  /** Quanto cada participante deve deste gasto (divisão igualitária). */
+  cotaPorParticipante: number;
+};
+
+export type EventoDTO = {
+  id: string;
+  nome: string;
+  emoji: string;
+  descricao: string | null;
+  dataInicio: string;
+  dataFim: string | null;
+  encerrado: boolean;
+  participantes: ParticipanteEventoDTO[];
+  gastos: GastoEventoDTO[];
+  total: number;
+  /** Total dividido pelo número de participantes. */
+  cotaPorParticipante: number;
+};
+
+/**
+ * Contas já quitadas no mês em foco. Ausência de id na lista significa
+ * "em andamento" — só o pagamento é gravado no banco.
+ */
+export type StatusGastos = {
+  fixasPagas: string[];
+  variaveisPagas: string[];
+};
+
 export type MembroDTO = {
   id: string;
   nome: string | null;
@@ -94,6 +157,26 @@ export const CATEGORIAS_VARIAVEIS = [
   "Lazer",
   "Cartão",
   "Saúde",
+  "Outros",
+];
+
+export const CATEGORIAS_EVENTO = [
+  "Hospedagem",
+  "Transporte",
+  "Alimentação",
+  "Passeios",
+  "Compras",
+  "Lazer",
+  "Outros",
+];
+
+export const CATEGORIAS_GANHO = [
+  "Freelance",
+  "Bônus",
+  "13º",
+  "Venda",
+  "Investimentos",
+  "Reembolso",
   "Outros",
 ];
 

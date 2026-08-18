@@ -1,8 +1,13 @@
-import { contasFixasDoMes, contasVariaveisDoMes } from "@/lib/dados";
+import {
+  contasFixasDoMes,
+  contasVariaveisDoMes,
+  ganhosExtrasDoMes,
+} from "@/lib/dados";
 import { adicionarMeses } from "@/lib/format";
 import type {
   ContaFixaDTO,
   ContaVariavelDTO,
+  GanhoExtraDTO,
   MetaDTO,
   PessoaDTO,
 } from "@/lib/tipos";
@@ -15,8 +20,15 @@ export function somarVariaveis(contas: ContaVariavelDTO[]) {
   return contas.reduce((total, conta) => total + conta.valorParcela, 0);
 }
 
+export function somarGanhos(ganhos: GanhoExtraDTO[]) {
+  return ganhos.reduce((total, ganho) => total + ganho.valor, 0);
+}
+
 export type Totais = {
   totalSalarios: number;
+  totalGanhosExtras: number;
+  /** Salários + ganhos extras do mês. */
+  totalReceitas: number;
   totalFixas: number;
   totalVariaveis: number;
   totalGastos: number;
@@ -27,11 +39,15 @@ export function calcularTotais(
   pessoas: PessoaDTO[],
   fixasMes: ContaFixaDTO[],
   variaveisMes: ContaVariavelDTO[],
+  ganhosMes: GanhoExtraDTO[] = [],
 ): Totais {
   const totalSalarios = pessoas.reduce(
     (total, pessoa) => total + pessoa.salario,
     0,
   );
+
+  const totalGanhosExtras = somarGanhos(ganhosMes);
+  const totalReceitas = totalSalarios + totalGanhosExtras;
 
   const totalFixas = somarFixas(fixasMes);
   const totalVariaveis = somarVariaveis(variaveisMes);
@@ -39,10 +55,12 @@ export function calcularTotais(
 
   return {
     totalSalarios,
+    totalGanhosExtras,
+    totalReceitas,
     totalFixas,
     totalVariaveis,
     totalGastos,
-    sobra: totalSalarios - totalGastos,
+    sobra: totalReceitas - totalGastos,
   };
 }
 
@@ -50,6 +68,9 @@ export type ResumoPessoa = {
   id: string;
   nome: string;
   salario: number;
+  ganhosExtras: number;
+  /** Salário + ganhos extras do mês. */
+  renda: number;
   gastos: number;
   sobra: number;
   livrePorDia: number;
@@ -63,6 +84,7 @@ export function calcularResumoPessoas(
   pessoas: PessoaDTO[],
   fixasMes: ContaFixaDTO[],
   variaveisMes: ContaVariavelDTO[],
+  ganhosMes: GanhoExtraDTO[] = [],
 ): ResumoPessoa[] {
   return pessoas.map((pessoa) => {
     let gastos = 0;
@@ -85,12 +107,19 @@ export function calcularResumoPessoas(
       }
     }
 
-    const sobra = pessoa.salario - gastos;
+    const ganhosExtras = somarGanhos(
+      ganhosMes.filter((ganho) => ganho.pessoaId === pessoa.id),
+    );
+
+    const renda = pessoa.salario + ganhosExtras;
+    const sobra = renda - gastos;
 
     return {
       id: pessoa.id,
       nome: pessoa.nome,
       salario: pessoa.salario,
+      ganhosExtras,
+      renda,
       gastos,
       sobra,
       livrePorDia: sobra / 30,
@@ -174,6 +203,7 @@ export function calcularEvolucaoAnual(
   totalSalarios: number,
   todasFixas: ContaFixaDTO[],
   todasVariaveis: ContaVariavelDTO[],
+  todosGanhos: GanhoExtraDTO[] = [],
 ) {
   const rotulos = [
     "Jan",
@@ -197,11 +227,14 @@ export function calcularEvolucaoAnual(
       somarFixas(contasFixasDoMes(todasFixas, mes)) +
       somarVariaveis(contasVariaveisDoMes(todasVariaveis, mes));
 
+    const receitas =
+      totalSalarios + somarGanhos(ganhosExtrasDoMes(todosGanhos, mes));
+
     return {
       mes: rotulo,
-      salarios: totalSalarios,
+      salarios: receitas,
       gastos,
-      sobra: Math.max(0, totalSalarios - gastos),
+      sobra: Math.max(0, receitas - gastos),
     };
   });
 }

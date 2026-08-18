@@ -8,6 +8,8 @@ import { useToast } from "@/components/ui/Toast";
 import { CORES_META, formatarMoeda } from "@/lib/format";
 import type { MetaDTO } from "@/lib/tipos";
 
+type ModoContribuicao = "AUTOMATICA" | "MANUAL";
+
 export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
@@ -15,12 +17,15 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
   const [formAberto, setFormAberto] = useState(false);
   const [editando, setEditando] = useState<MetaDTO | null>(null);
   const [removendo, setRemovendo] = useState<MetaDTO | null>(null);
+  const [aportando, setAportando] = useState<MetaDTO | null>(null);
+  const [aporte, setAporte] = useState("");
 
   const [nome, setNome] = useState("");
   const [emoji, setEmoji] = useState("");
   const [valorAlvo, setValorAlvo] = useState("");
   const [valorAtual, setValorAtual] = useState("");
   const [contribuicao, setContribuicao] = useState("");
+  const [modo, setModo] = useState<ModoContribuicao>("AUTOMATICA");
   const [cor, setCor] = useState(CORES_META[0]);
 
   function abrirForm(meta: MetaDTO | null) {
@@ -32,11 +37,21 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
     setContribuicao(
       meta?.contribuicaoMensal ? String(meta.contribuicaoMensal) : "",
     );
+    setModo(meta?.contribuicaoMensal ? "MANUAL" : "AUTOMATICA");
     setCor(meta?.cor ?? CORES_META[0]);
     setFormAberto(true);
   }
 
   function salvar() {
+    if (modo === "MANUAL" && Number(contribuicao) <= 0) {
+      mostrarToast(
+        "No modo manual, informe quanto vai guardar por mês.",
+        "error",
+      );
+
+      return;
+    }
+
     iniciar(async () => {
       const resultado = await salvarMeta({
         id: editando?.id,
@@ -44,7 +59,8 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
         emoji: emoji || "🎯",
         valorAlvo: valorAlvo || 0,
         valorAtual: valorAtual || 0,
-        contribuicaoMensal: contribuicao.trim() === "" ? null : contribuicao,
+        // Automático = sem valor gravado: o cálculo divide a sobra do mês.
+        contribuicaoMensal: modo === "MANUAL" ? contribuicao : null,
         cor,
       });
 
@@ -52,6 +68,45 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
 
       if (resultado.ok) {
         setFormAberto(false);
+      }
+    });
+  }
+
+  function abrirAporte(meta: MetaDTO) {
+    setAportando(meta);
+    setAporte("");
+  }
+
+  /** Aporte manual: soma o valor informado ao que já está guardado. */
+  function confirmarAporte() {
+    if (!aportando) return;
+
+    const valor = Number(aporte);
+
+    if (!valor) {
+      mostrarToast("Informe o valor guardado agora.", "error");
+
+      return;
+    }
+
+    iniciar(async () => {
+      const resultado = await salvarMeta({
+        id: aportando.id,
+        nome: aportando.nome,
+        emoji: aportando.emoji,
+        valorAlvo: aportando.valorAlvo,
+        valorAtual: Math.max(0, aportando.valorAtual + valor),
+        contribuicaoMensal: aportando.contribuicaoMensal,
+        cor: aportando.cor,
+      });
+
+      mostrarToast(
+        resultado.ok ? "Valor guardado atualizado!" : resultado.mensagem,
+        resultado.ok ? "success" : "error",
+      );
+
+      if (resultado.ok) {
+        setAportando(null);
       }
     });
   }
@@ -162,7 +217,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
 
                         <span className="text-muted">
                           {meta.contribuicaoMensal
-                            ? `· ${formatarMoeda(meta.contribuicaoMensal)}/mês`
+                            ? `· ${formatarMoeda(meta.contribuicaoMensal)}/mês (manual)`
                             : "· contribuição automática"}
                         </span>
                       </div>
@@ -170,6 +225,16 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
                   </div>
 
                   <div className="perfil-meta-acoes">
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      style={{ padding: "6px 12px", fontSize: 13 }}
+                      title="Registrar valor guardado"
+                      onClick={() => abrirAporte(meta)}
+                    >
+                      💰
+                    </button>
+
                     <button
                       className="btn btn-secondary"
                       type="button"
@@ -286,26 +351,54 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
           </div>
 
           <div className="perfil-form-group">
-            <label className="form-label">
-              Contribuição mensal (R$){" "}
-              <span
-                className="text-muted"
-                style={{ fontSize: 11, fontWeight: 400 }}
-              >
-                — deixe em branco para calcular automaticamente
-              </span>
-            </label>
+            <label className="form-label">Como guardar por mês</label>
 
-            <input
-              className="input"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Automático (baseado na sobra)"
-              value={contribuicao}
-              onChange={(evento) => setContribuicao(evento.target.value)}
-            />
+            <div className="meta-modo-opcoes">
+              <button
+                type="button"
+                className={`meta-modo-opcao${
+                  modo === "AUTOMATICA" ? " selecionada" : ""
+                }`}
+                onClick={() => setModo("AUTOMATICA")}
+              >
+                <strong>⚙️ Automático</strong>
+
+                <span className="text-muted">
+                  Divide a sobra do mês entre as metas automáticas
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className={`meta-modo-opcao${
+                  modo === "MANUAL" ? " selecionada" : ""
+                }`}
+                onClick={() => setModo("MANUAL")}
+              >
+                <strong>✍️ Manual</strong>
+
+                <span className="text-muted">
+                  Você define quanto vai guardar todo mês
+                </span>
+              </button>
+            </div>
           </div>
+
+          {modo === "MANUAL" ? (
+            <div className="perfil-form-group">
+              <label className="form-label">Guardar por mês (R$)</label>
+
+              <input
+                className="input"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Ex: 500"
+                value={contribuicao}
+                onChange={(evento) => setContribuicao(evento.target.value)}
+              />
+            </div>
+          ) : null}
 
           <div className="perfil-form-group">
             <label className="form-label">Cor</label>
@@ -323,6 +416,59 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
                 />
               ))}
             </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        aberto={Boolean(aportando)}
+        titulo={`Guardar em ${aportando?.nome ?? "meta"}`}
+        onFechar={() => setAportando(null)}
+        footer={
+          <>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => setAportando(null)}
+              disabled={pendente}
+            >
+              Cancelar
+            </button>
+
+            <button
+              className="btn btn-primary"
+              type="button"
+              style={{ background: "#f59e0b", borderColor: "#f59e0b" }}
+              onClick={confirmarAporte}
+              disabled={pendente}
+            >
+              {pendente ? "Salvando..." : "Somar ao guardado"}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-muted">
+            Já guardado: {formatarMoeda(aportando?.valorAtual ?? 0)} de{" "}
+            {formatarMoeda(aportando?.valorAlvo ?? 0)}
+          </p>
+
+          <div>
+            <label className="form-label">
+              Valor guardado agora (R$){" "}
+              <span className="text-muted text-xs">
+                — use negativo para corrigir para menos
+              </span>
+            </label>
+
+            <input
+              className="input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 200"
+              value={aporte}
+              onChange={(evento) => setAporte(evento.target.value)}
+            />
           </div>
         </div>
       </Modal>

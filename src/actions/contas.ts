@@ -9,6 +9,7 @@ import {
   contaFixaSchema,
   contaVariavelSchema,
   primeiroErro,
+  statusContaSchema,
 } from "@/lib/validators";
 import { obterContexto } from "@/lib/workspace";
 
@@ -179,15 +180,97 @@ export async function removerContaVariavel(
 ): Promise<ResultadoAcao> {
   const { workspaceId } = await obterContexto();
 
-  const resultado = await prisma.contaVariavel.deleteMany({
+  const conta = await prisma.contaVariavel.findFirst({
     where: { id, workspaceId },
+    select: { id: true, gastoEventoId: true },
   });
 
-  if (resultado.count === 0) {
+  if (!conta) {
     return { ok: false, mensagem: "Conta não encontrada." };
   }
+
+  if (conta.gastoEventoId) {
+    return {
+      ok: false,
+      mensagem:
+        "Esta conta é a cota de um evento. Remova o gasto na aba Eventos.",
+    };
+  }
+
+  await prisma.contaVariavel.delete({ where: { id: conta.id } });
 
   revalidarVariaveis();
 
   return { ok: true, mensagem: "Conta removida." };
+}
+
+/**
+ * Marca (ou desmarca) a conta como paga no mês em foco. Só o pagamento vira
+ * registro: sem linha na tabela, a conta do mês está em andamento — assim uma
+ * conta fixa que se repete todo mês não precisa de nada pré-criado.
+ */
+export async function alternarStatusConta(dados: {
+  tipo: "FIXA" | "VARIAVEL";
+  contaId: string;
+  mes: string;
+  pago: boolean;
+}): Promise<ResultadoAcao> {
+  const parsed = statusContaSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { workspaceId } = await obterContexto();
+  const { tipo, contaId, mes, pago } = parsed.data;
+
+  const existe =
+    tipo === "FIXA"
+      ? await prisma.contaFixa.findFirst({
+          where: { id: contaId, workspaceId },
+          select: { id: true },
+        })
+      : await prisma.contaVariavel.findFirst({
+          where: { id: contaId, workspaceId },
+          select: { id: true },
+        });
+
+  if (!existe) {
+    return { ok: false, mensagem: "Conta não encontrada." };
+  }
+
+  const chave =
+    tipo === "FIXA"
+      ? { contaFixaId_mes: { contaFixaId: contaId, mes } }
+      : { contaVariavelId_mes: { contaVariavelId: contaId, mes } };
+
+  if (!pago) {
+    await prisma.pagamentoConta.deleteMany({
+      where:
+        tipo === "FIXA"
+          ? { contaFixaId: contaId, mes, workspaceId }
+          : { contaVariavelId: contaId, mes, workspaceId },
+    });
+  } else {
+    await prisma.pagamentoConta.upsert({
+      where: chave,
+      update: { status: "PAGO", pagoEm: new Date() },
+      create: {
+        mes,
+        status: "PAGO",
+        workspaceId,
+        ...(tipo === "FIXA"
+          ? { contaFixaId: contaId }
+          : { contaVariavelId: contaId }),
+      },
+    });
+  }
+
+  revalidarFixas();
+  revalidarVariaveis();
+
+  return {
+    ok: true,
+    mensagem: pago ? "Marcada como paga." : "Marcada como em andamento.",
+  };
 }

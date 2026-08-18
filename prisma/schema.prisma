@@ -17,21 +17,21 @@ model User {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
 
-  membros            WorkspaceMembro[]
-  pessoas            Pessoa[]
-  convitesEnviados   Convite[]          @relation("ConvitesEnviados")
-  redefinicoesSenha  RedefinicaoSenha[]
+  membros           WorkspaceMembro[]
+  pessoas           Pessoa[]
+  convitesEnviados  Convite[]          @relation("ConvitesEnviados")
+  redefinicoesSenha RedefinicaoSenha[]
 }
 
 /// Token de link para "esqueci minha senha", enviado por e-mail.
 model RedefinicaoSenha {
-  id       String    @id @default(cuid())
-  token    String    @unique
-  userId   String
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiraEm DateTime
-  usadoEm  DateTime?
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -57,6 +57,10 @@ model Workspace {
   metas           Meta[]
   convites        Convite[]
   configuracao    Configuracao?
+  eventos         Evento[]
+  gastosEvento    GastoEvento[]
+  ganhosExtras    GanhoExtra[]
+  pagamentos      PagamentoConta[]
 }
 
 model WorkspaceMembro {
@@ -89,9 +93,11 @@ model Pessoa {
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt   DateTime  @default(now())
 
-  contasFixas     ContaFixa[]
-  contasVariaveis ContaVariavel[]
-  convites        Convite[]
+  contasFixas         ContaFixa[]
+  contasVariaveis     ContaVariavel[]
+  convites            Convite[]
+  ganhosExtras        GanhoExtra[]
+  participacoesEvento ParticipanteEvento[]
 
   @@index([workspaceId])
   @@index([userId])
@@ -144,6 +150,8 @@ model ContaFixa {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
+  pagamentos PagamentoConta[]
+
   @@index([workspaceId])
   @@index([dataInicio])
 }
@@ -154,25 +162,32 @@ enum TipoContaFixa {
 }
 
 model ContaVariavel {
-  id           String    @id @default(cuid())
-  nome         String
-  valorTotal   Decimal   @db.Decimal(15, 2)
-  valorParcela Decimal   @db.Decimal(15, 2)
-  categoria    String    @default("Outros")
-  pessoaId     String
-  pessoa       Pessoa    @relation(fields: [pessoaId], references: [id], onDelete: Restrict)
-  data         String
-  mesInicio    String
-  mesFim       String
-  parcelas     Int       @default(1)
-  observacao   String?
-  workspaceId  String
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String       @id @default(cuid())
+  nome          String
+  valorTotal    Decimal      @db.Decimal(15, 2)
+  valorParcela  Decimal      @db.Decimal(15, 2)
+  categoria     String       @default("Outros")
+  pessoaId      String
+  pessoa        Pessoa       @relation(fields: [pessoaId], references: [id], onDelete: Restrict)
+  data          String
+  mesInicio     String
+  mesFim        String
+  parcelas      Int          @default(1)
+  observacao    String?
+  workspaceId   String
+  workspace     Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Preenchido quando a conta é a cota de um gasto de evento/viagem: ela é
+  /// mantida pelo próprio evento e some junto com ele.
+  gastoEventoId String?
+  gastoEvento   GastoEvento? @relation(fields: [gastoEventoId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  pagamentos PagamentoConta[]
 
   @@index([workspaceId])
   @@index([mesInicio, mesFim])
+  @@index([gastoEventoId])
 }
 
 model Meta {
@@ -192,14 +207,120 @@ model Meta {
 }
 
 model Configuracao {
-  id                String    @id @default(cuid())
-  divisaoPorSalario Boolean   @default(false)
+  id                       String    @id @default(cuid())
+  divisaoPorSalario        Boolean   @default(false)
   /// Consentimento da família para que a contabilidade (ADMIN do sistema) veja
   /// os valores no painel contábil. Desmarcado, a família some do painel.
-  compartilharComContadora Boolean @default(true)
-  poeApiKey         String?
-  openaiApiKey      String?
-  workspaceId       String    @unique
-  workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  updatedAt         DateTime  @updatedAt
+  compartilharComContadora Boolean   @default(true)
+  poeApiKey                String?
+  openaiApiKey             String?
+  workspaceId              String    @unique
+  workspace                Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  updatedAt                DateTime  @updatedAt
+}
+
+/// Viagem, festa ou qualquer ocasião em que um grupo — inclusive gente de
+/// fora da família — divide as despesas em partes iguais.
+model Evento {
+  id          String    @id @default(cuid())
+  nome        String
+  emoji       String    @default("🧳")
+  descricao   String?
+  dataInicio  String
+  dataFim     String?
+  encerrado   Boolean   @default(false)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  participantes ParticipanteEvento[]
+  gastos        GastoEvento[]
+
+  @@index([workspaceId])
+}
+
+/// Quem está no evento. Pode ser alguém da família (`pessoaId` preenchido, e
+/// então a cota entra nos gastos dessa pessoa) ou um convidado temporário,
+/// que só existe para dividir a conta.
+model ParticipanteEvento {
+  id        String   @id @default(cuid())
+  nome      String
+  eventoId  String
+  evento    Evento   @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  pessoaId  String?
+  pessoa    Pessoa?  @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([eventoId])
+  @@index([pessoaId])
+}
+
+/// Despesa do evento, sempre dividida igualmente entre os participantes.
+model GastoEvento {
+  id          String    @id @default(cuid())
+  nome        String
+  valor       Decimal   @db.Decimal(15, 2)
+  categoria   String    @default("Lazer")
+  data        String
+  observacao  String?
+  eventoId    String
+  evento      Evento    @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  /// Cotas lançadas automaticamente para os participantes da família.
+  cotas ContaVariavel[]
+
+  @@index([eventoId])
+  @@index([workspaceId])
+}
+
+/// Entrada avulsa de dinheiro (freela, bônus, venda) de uma pessoa em um mês.
+model GanhoExtra {
+  id          String    @id @default(cuid())
+  nome        String
+  valor       Decimal   @db.Decimal(15, 2)
+  categoria   String    @default("Outros")
+  pessoaId    String
+  pessoa      Pessoa    @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
+  data        String
+  mes         String
+  recorrente  Boolean   @default(false)
+  observacao  String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId, mes])
+  @@index([pessoaId])
+}
+
+/// Marca de pagamento de uma conta em um mês específico. Sem registro, a
+/// conta do mês está "em andamento" — só o PAGO é gravado.
+model PagamentoConta {
+  id              String          @id @default(cuid())
+  mes             String
+  status          StatusPagamento @default(PAGO)
+  pagoEm          DateTime        @default(now())
+  contaFixaId     String?
+  contaFixa       ContaFixa?      @relation(fields: [contaFixaId], references: [id], onDelete: Cascade)
+  contaVariavelId String?
+  contaVariavel   ContaVariavel?  @relation(fields: [contaVariavelId], references: [id], onDelete: Cascade)
+  workspaceId     String
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([contaFixaId, mes])
+  @@unique([contaVariavelId, mes])
+  @@index([workspaceId, mes])
+}
+
+enum StatusPagamento {
+  EM_ANDAMENTO
+  PAGO
 }

@@ -88,6 +88,58 @@ export const metaSchema = z.object({
     .default("#10b981"),
 });
 
+export const eventoSchema = z.object({
+  id: z.string().optional(),
+  nome: z.string().trim().min(1, "Informe o nome do evento"),
+  emoji: z.string().trim().max(4).default("🧳"),
+  descricao: z.string().trim().max(500).optional(),
+  dataInicio: z.string().regex(DATA, "Data inicial inválida"),
+  dataFim: z
+    .string()
+    .regex(DATA, "Data final inválida")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+});
+
+export const participanteEventoSchema = z.object({
+  eventoId: z.string().min(1, "Evento inválido"),
+  nome: z.string().trim().min(1, "Informe o nome do participante"),
+  /** Vazio = convidado de fora, que só divide a conta. */
+  pessoaId: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((valor) => valor || null),
+});
+
+export const gastoEventoSchema = z.object({
+  id: z.string().optional(),
+  eventoId: z.string().min(1, "Evento inválido"),
+  nome: z.string().trim().min(1, "Informe o nome do gasto"),
+  valor: z.coerce.number().min(0, "Valor inválido"),
+  categoria: z.string().trim().min(1).default("Outros"),
+  data: z.string().regex(DATA, "Data inválida"),
+  observacao: z.string().trim().max(500).optional(),
+});
+
+export const ganhoExtraSchema = z.object({
+  id: z.string().optional(),
+  nome: z.string().trim().min(1, "Informe a descrição do ganho"),
+  valor: z.coerce.number().min(0, "Valor inválido"),
+  categoria: z.string().trim().min(1).default("Outros"),
+  pessoaId: z.string().min(1, "Selecione a pessoa que recebeu"),
+  data: z.string().regex(DATA, "Data inválida"),
+  recorrente: z.coerce.boolean().default(false),
+  observacao: z.string().trim().max(500).optional(),
+});
+
+export const statusContaSchema = z.object({
+  tipo: z.enum(["FIXA", "VARIAVEL"]),
+  contaId: z.string().min(1, "Conta inválida"),
+  mes: z.string().regex(MES, "Mês inválido"),
+  pago: z.boolean(),
+});
+
 export const conviteSchema = z.object({
   pessoaId: z.string().min(1, "Pessoa inválida"),
   email: z.string().trim().toLowerCase().email("E-mail inválido"),

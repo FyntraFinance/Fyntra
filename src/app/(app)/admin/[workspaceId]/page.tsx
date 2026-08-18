@@ -17,10 +17,13 @@ import {
 import {
   contasFixasDoMes,
   contasVariaveisDoMes,
+  ganhosExtrasDoMes,
   listarContasFixas,
   listarContasVariaveis,
+  listarGanhosExtras,
   listarMetas,
   listarPessoas,
+  listarStatusGastos,
 } from "@/lib/dados";
 import {
   formatarData,
@@ -83,18 +86,29 @@ export default async function RelatorioFamiliaPage({
     );
   }
 
-  const [pessoas, todasFixas, todasVariaveis, metas] = await Promise.all([
-    listarPessoas(workspaceId),
-    listarContasFixas(workspaceId),
-    listarContasVariaveis(workspaceId),
-    listarMetas(workspaceId),
-  ]);
+  const [pessoas, todasFixas, todasVariaveis, todosGanhos, metas, status] =
+    await Promise.all([
+      listarPessoas(workspaceId),
+      listarContasFixas(workspaceId),
+      listarContasVariaveis(workspaceId),
+      listarGanhosExtras(workspaceId),
+      listarMetas(workspaceId),
+      listarStatusGastos(workspaceId, mes),
+    ]);
 
   const fixasMes = contasFixasDoMes(todasFixas, mes);
   const variaveisMes = contasVariaveisDoMes(todasVariaveis, mes);
+  const ganhosMes = ganhosExtrasDoMes(todosGanhos, mes);
 
-  const totais = calcularTotais(pessoas, fixasMes, variaveisMes);
-  const resumoPessoas = calcularResumoPessoas(pessoas, fixasMes, variaveisMes);
+  const totais = calcularTotais(pessoas, fixasMes, variaveisMes, ganhosMes);
+
+  const resumoPessoas = calcularResumoPessoas(
+    pessoas,
+    fixasMes,
+    variaveisMes,
+    ganhosMes,
+  );
+
   const metasCalculadas = calcularMetas(metas, totais.sobra, mes);
   const porCategoria = calcularPorCategoria(fixasMes, variaveisMes);
 
@@ -103,14 +117,27 @@ export default async function RelatorioFamiliaPage({
     totais.totalSalarios,
     todasFixas,
     todasVariaveis,
+    todosGanhos,
   );
 
   const dadosResumo = [
     { nome: "Salários", valor: totais.totalSalarios, cor: "#10b981" },
+    { nome: "Extras", valor: totais.totalGanhosExtras, cor: "#22c55e" },
     { nome: "Fixas", valor: totais.totalFixas, cor: "#3b82f6" },
     { nome: "Variáveis", valor: totais.totalVariaveis, cor: "#8b5cf6" },
     { nome: "Sobra", valor: Math.max(0, totais.sobra), cor: "#06b6d4" },
   ];
+
+  /** Selo somente-leitura: a contabilidade acompanha, mas não altera status. */
+  const selo = (pago: boolean) => (
+    <span
+      className={`status-badge somente-leitura${
+        pago ? " pago" : " andamento"
+      }`}
+    >
+      {pago ? "✓ Pago" : "⏳ Em andamento"}
+    </span>
+  );
 
   const linkMes = (novoMes: string) => `/admin/${workspaceId}?mes=${novoMes}`;
 
@@ -152,6 +179,14 @@ export default async function RelatorioFamiliaPage({
           <div className="metric-label">Total Salários</div>
           <div className="metric-value">
             {formatarMoeda(totais.totalSalarios)}
+          </div>
+        </div>
+
+        <div className="card metric-card c-green">
+          <div className="metric-icon green">💵</div>
+          <div className="metric-label">Ganhos Extras</div>
+          <div className="metric-value">
+            {formatarMoeda(totais.totalGanhosExtras)}
           </div>
         </div>
 
@@ -234,6 +269,15 @@ export default async function RelatorioFamiliaPage({
                     <span>Salário</span>
                     <strong>{formatarMoeda(pessoa.salario)}</strong>
                   </div>
+
+                  {pessoa.ganhosExtras > 0 ? (
+                    <div className="flex-between">
+                      <span>Ganhos extras</span>
+                      <strong className="text-emerald-400">
+                        + {formatarMoeda(pessoa.ganhosExtras)}
+                      </strong>
+                    </div>
+                  ) : null}
 
                   <div className="flex-between">
                     <span>Gastos</span>
@@ -319,6 +363,12 @@ export default async function RelatorioFamiliaPage({
                         {conta.dataFim ? ` até ${formatarMesAno(conta.dataFim)}` : ""}
                       </span>
                     </div>
+
+                    {fixasMes.some((item) => item.id === conta.id) ? (
+                      <div className="mt-8">
+                        {selo(status.fixasPagas.includes(conta.id))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <span className="membro-role">{formatarMoeda(conta.valor)}</span>
@@ -356,10 +406,53 @@ export default async function RelatorioFamiliaPage({
                           : `à vista em ${formatarData(conta.data)}`}
                       </span>
                     </div>
+
+                    {variaveisMes.some((item) => item.id === conta.id) ? (
+                      <div className="mt-8">
+                        {selo(status.variaveisPagas.includes(conta.id))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <span className="membro-role">
                     {formatarMoeda(conta.valorTotal)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <div className="card-header">
+          <div className="card-title">
+            💵 Ganhos Extras do mês ({ganhosMes.length})
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="membros-lista">
+            {ganhosMes.length === 0 ? (
+              <div className="text-slate-400">
+                Nenhum ganho extra lançado neste mês.
+              </div>
+            ) : (
+              ganhosMes.map((ganho) => (
+                <div className="membro-item" key={ganho.id}>
+                  <div>
+                    <div className="list-title">{ganho.nome}</div>
+
+                    <div className="list-sub">
+                      <span>{nomePorPessoa.get(ganho.pessoaId) ?? "—"}</span>
+                      <span>{ganho.categoria}</span>
+                      <span>{formatarData(ganho.data)}</span>
+                      {ganho.recorrente ? <span>todo mês</span> : null}
+                    </div>
+                  </div>
+
+                  <span className="membro-role">
+                    + {formatarMoeda(ganho.valor)}
                   </span>
                 </div>
               ))

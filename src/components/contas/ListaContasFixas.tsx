@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { removerContaFixa, salvarContaFixa } from "@/actions/contas";
+import { BotaoStatus } from "@/components/contas/BotaoStatus";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { formatarMoeda } from "@/lib/format";
@@ -22,10 +23,13 @@ export function ListaContasFixas({
   contas,
   pessoas,
   mes,
+  pagas,
 }: {
   contas: ContaFixaDTO[];
   pessoas: PessoaDTO[];
   mes: string;
+  /** Ids das contas já quitadas no mês em foco. */
+  pagas: string[];
 }) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
@@ -92,7 +96,10 @@ export function ListaContasFixas({
   return (
     <>
       <div className="page-actions">
-        <div className="text-muted">Contas recorrentes mensais</div>
+        <div className="text-muted">
+          Contas recorrentes mensais · {pagas.length} de {contas.length} paga(s)
+          neste mês
+        </div>
 
         <button
           className="btn btn-primary"
@@ -132,6 +139,15 @@ export function ListaContasFixas({
                           <span>{pessoa.nome}</span>
                         </>
                       ) : null}
+                    </div>
+
+                    <div className="mt-8">
+                      <BotaoStatus
+                        tipo="FIXA"
+                        contaId={conta.id}
+                        mes={mes}
+                        pago={pagas.includes(conta.id)}
+                      />
                     </div>
                   </div>
 

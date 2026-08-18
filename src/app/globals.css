@@ -3685,4 +3685,382 @@ a.btn-token-config {
 }
 
 
+/* ==========================================================================
+   Status de pagamento das contas (pago x em andamento no mês em foco)
+   ========================================================================== */
+
+.status-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    padding: 3px 10px;
+
+    border: 1px solid transparent;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: filter .15s ease;
+}
+
+.status-badge:hover {
+
+    filter: brightness(1.15);
+}
+
+.status-badge:disabled {
+
+    opacity: .6;
+
+    cursor: wait;
+}
+
+/* No painel contábil o selo só informa — não é clicável. */
+.status-badge.somente-leitura {
+
+    cursor: default;
+}
+
+.status-badge.pago {
+
+    background: rgba(16,185,129,.15);
+
+    border-color: rgba(16,185,129,.35);
+
+    color: #34d399;
+}
+
+.status-badge.andamento {
+
+    background: rgba(245,158,11,.15);
+
+    border-color: rgba(245,158,11,.35);
+
+    color: #fbbf24;
+}
+
+/* ==========================================================================
+   Eventos e viagens com divisão igualitária
+   ========================================================================== */
+
+.evento-topo {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.evento-identidade {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background: none;
+
+    border: 0;
+
+    padding: 0;
+
+    color: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+.evento-emoji {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 14px;
+
+    background: var(--wht-05);
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+}
+
+.evento-identidade .list-title,
+.evento-identidade .list-sub {
+
+    display: block;
+}
+
+.evento-badge {
+
+    margin-left: 8px;
+}
+
+.evento-datas {
+
+    margin-top: 2px;
+}
+
+.evento-corpo {
+
+    margin-top: 16px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--border);
+}
+
+.evento-secao + .evento-secao {
+
+    margin-top: 20px;
+}
+
+.evento-secao-titulo {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: var(--text-2);
+
+    margin-bottom: 10px;
+}
+
+.evento-participantes {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.evento-chip {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 5px 10px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 999px;
+
+    background: var(--wht-04);
+
+    font-size: 13px;
+}
+
+.evento-chip.da-familia {
+
+    border-color: rgba(16,185,129,.35);
+
+    background: rgba(16,185,129,.10);
+}
+
+.evento-chip-tag {
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .03em;
+
+    color: var(--text-2);
+}
+
+.evento-chip button {
+
+    background: none;
+
+    border: 0;
+
+    color: var(--text-2);
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    line-height: 1;
+}
+
+.evento-chip button:hover {
+
+    color: var(--danger);
+}
+
+.evento-btn-add {
+
+    margin-top: 12px;
+
+    padding: 6px 14px;
+
+    font-size: 13px;
+}
+
+.evento-gasto-direita {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.evento-aviso {
+
+    margin-top: 16px;
+
+    font-size: 12px;
+}
+
+.evento-acoes {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 20px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--border);
+}
+
+.evento-btn-remover {
+
+    border-color: var(--danger);
+
+    color: var(--danger);
+}
+
+.evento-emoji-chip {
+
+    width: 38px;
+
+    height: 38px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--wht-04);
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+.evento-emoji-chip.selecionada {
+
+    border-color: var(--accent);
+
+    background: rgba(16,185,129,.15);
+}
+
+/* ==========================================================================
+   Meta: escolha entre contribuição automática e manual
+   ========================================================================== */
+
+.meta-modo-opcoes {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+.meta-modo-opcao {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    background: var(--wht-03);
+
+    text-align: left;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.meta-modo-opcao.selecionada {
+
+    border-color: #f59e0b;
+
+    background: rgba(245,158,11,.12);
+}
+
+@media (max-width: 520px) {
+
+    .meta-modo-opcoes {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ganho extra recorrente */
+
+.ganho-recorrente {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.ganho-recorrente input {
+
+    margin-top: 3px;
+
+    accent-color: var(--accent);
+}
+
+
 @tailwind utilities;

@@ -2,9 +2,12 @@ import { prisma } from "@/lib/prisma";
 import type {
   ContaFixaDTO,
   ContaVariavelDTO,
+  EventoDTO,
+  GanhoExtraDTO,
   MembroDTO,
   MetaDTO,
   PessoaDTO,
+  StatusGastos,
 } from "@/lib/tipos";
 
 export async function listarPessoas(workspaceId: string): Promise<PessoaDTO[]> {
@@ -99,6 +102,99 @@ export async function listarMetas(workspaceId: string): Promise<MetaDTO[]> {
   }));
 }
 
+export async function listarGanhosExtras(
+  workspaceId: string,
+): Promise<GanhoExtraDTO[]> {
+  const ganhos = await prisma.ganhoExtra.findMany({
+    where: { workspaceId },
+    orderBy: { data: "desc" },
+  });
+
+  return ganhos.map((ganho) => ({
+    id: ganho.id,
+    nome: ganho.nome,
+    valor: Number(ganho.valor),
+    categoria: ganho.categoria,
+    pessoaId: ganho.pessoaId,
+    data: ganho.data,
+    mes: ganho.mes,
+    recorrente: ganho.recorrente,
+    observacao: ganho.observacao,
+  }));
+}
+
+export async function listarEventos(
+  workspaceId: string,
+): Promise<EventoDTO[]> {
+  const eventos = await prisma.evento.findMany({
+    where: { workspaceId },
+    orderBy: { dataInicio: "desc" },
+    include: {
+      participantes: {
+        orderBy: { createdAt: "asc" },
+        include: { pessoa: { select: { userId: true } } },
+      },
+      gastos: { orderBy: { data: "desc" } },
+    },
+  });
+
+  return eventos.map((evento) => {
+    const divisor = Math.max(1, evento.participantes.length);
+
+    const total = evento.gastos.reduce(
+      (soma, gasto) => soma + Number(gasto.valor),
+      0,
+    );
+
+    return {
+      id: evento.id,
+      nome: evento.nome,
+      emoji: evento.emoji,
+      descricao: evento.descricao,
+      dataInicio: evento.dataInicio,
+      dataFim: evento.dataFim,
+      encerrado: evento.encerrado,
+      participantes: evento.participantes.map((participante) => ({
+        id: participante.id,
+        nome: participante.nome,
+        pessoaId: participante.pessoaId,
+        temAcesso: Boolean(participante.pessoa?.userId),
+      })),
+      gastos: evento.gastos.map((gasto) => ({
+        id: gasto.id,
+        nome: gasto.nome,
+        valor: Number(gasto.valor),
+        categoria: gasto.categoria,
+        data: gasto.data,
+        observacao: gasto.observacao,
+        cotaPorParticipante: Number(gasto.valor) / divisor,
+      })),
+      total,
+      cotaPorParticipante: total / divisor,
+    };
+  });
+}
+
+/** Contas marcadas como pagas no mês em foco. */
+export async function listarStatusGastos(
+  workspaceId: string,
+  mes: string,
+): Promise<StatusGastos> {
+  const pagamentos = await prisma.pagamentoConta.findMany({
+    where: { workspaceId, mes, status: "PAGO" },
+    select: { contaFixaId: true, contaVariavelId: true },
+  });
+
+  return {
+    fixasPagas: pagamentos
+      .map((pagamento) => pagamento.contaFixaId)
+      .filter((id): id is string => Boolean(id)),
+    variaveisPagas: pagamentos
+      .map((pagamento) => pagamento.contaVariavelId)
+      .filter((id): id is string => Boolean(id)),
+  };
+}
+
 export async function listarMembros(
   workspaceId: string,
   userId: string,
@@ -134,6 +230,13 @@ export async function obterConfiguracao(workspaceId: string) {
     compartilharComContadora: configuracao?.compartilharComContadora ?? true,
     temTokenIa: Boolean(configuracao?.poeApiKey),
   };
+}
+
+/** Ganho extra vale para o mês em que caiu; o recorrente vale de lá em diante. */
+export function ganhosExtrasDoMes(ganhos: GanhoExtraDTO[], mes: string) {
+  return ganhos.filter((ganho) =>
+    ganho.recorrente ? ganho.mes <= mes : ganho.mes === mes,
+  );
 }
 
 /** Conta fixa vale para o mês se já começou e ainda não terminou. */

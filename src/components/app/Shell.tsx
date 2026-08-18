@@ -10,16 +10,26 @@ import { ChatIA } from "@/components/assistente/ChatIA";
 import { ListaContasFixas } from "@/components/contas/ListaContasFixas";
 import { ListaContasVariaveis } from "@/components/contas/ListaContasVariaveis";
 import { DashboardConteudo } from "@/components/dashboard/DashboardConteudo";
+import { ListaEventos } from "@/components/eventos/ListaEventos";
+import { ListaGanhos } from "@/components/ganhos/ListaGanhos";
 import { ListaPessoas } from "@/components/pessoas/ListaPessoas";
 import type { MetaCalculada, ResumoPessoa, Totais } from "@/lib/calculos";
 import { inicialNome } from "@/lib/format";
-import type { ContaFixaDTO, ContaVariavelDTO, PessoaDTO } from "@/lib/tipos";
+import type {
+  ContaFixaDTO,
+  ContaVariavelDTO,
+  EventoDTO,
+  GanhoExtraDTO,
+  PessoaDTO,
+} from "@/lib/tipos";
 
 type AbaChave =
   | "dashboard"
   | "pessoas"
   | "contas-fixas"
   | "contas-variaveis"
+  | "ganhos"
+  | "eventos"
   | "assistente";
 
 const ABAS: { key: AbaChave; rotulo: string; titulo: string }[] = [
@@ -31,6 +41,8 @@ const ABAS: { key: AbaChave; rotulo: string; titulo: string }[] = [
     rotulo: "💳 Contas Variáveis",
     titulo: "Contas Variáveis",
   },
+  { key: "ganhos", rotulo: "💵 Ganhos Extras", titulo: "Ganhos Extras" },
+  { key: "eventos", rotulo: "🧳 Eventos", titulo: "Eventos" },
   { key: "assistente", rotulo: "🤖 Assistente IA", titulo: "Assistente IA" },
 ];
 
@@ -54,11 +66,26 @@ export type DadosAbas = {
       nome: string;
       categoria: string;
       valor: number;
+      tipo: "FIXA" | "VARIAVEL";
+      pago: boolean;
     }[];
+    mes: string;
   };
   pessoas: { pessoas: PessoaDTO[]; podeConvidar: boolean };
-  contasFixas: { contas: ContaFixaDTO[]; pessoas: PessoaDTO[]; mes: string };
-  contasVariaveis: { contas: ContaVariavelDTO[]; pessoas: PessoaDTO[] };
+  contasFixas: {
+    contas: ContaFixaDTO[];
+    pessoas: PessoaDTO[];
+    mes: string;
+    pagas: string[];
+  };
+  contasVariaveis: {
+    contas: ContaVariavelDTO[];
+    pessoas: PessoaDTO[];
+    mes: string;
+    pagas: string[];
+  };
+  ganhos: { ganhos: GanhoExtraDTO[]; pessoas: PessoaDTO[]; mes: string };
+  eventos: { eventos: EventoDTO[]; pessoas: PessoaDTO[] };
   assistente: { temToken: boolean; mes: string };
 };
 
@@ -131,6 +158,10 @@ export function Shell({
         return <ListaContasFixas {...abas.contasFixas} />;
       case "contas-variaveis":
         return <ListaContasVariaveis {...abas.contasVariaveis} />;
+      case "ganhos":
+        return <ListaGanhos {...abas.ganhos} />;
+      case "eventos":
+        return <ListaEventos {...abas.eventos} />;
       case "assistente":
         return <ChatIA {...abas.assistente} />;
     }

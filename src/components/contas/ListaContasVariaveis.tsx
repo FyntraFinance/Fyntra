@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { removerContaVariavel, salvarContaVariavel } from "@/actions/contas";
+import { BotaoStatus } from "@/components/contas/BotaoStatus";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { formatarData, formatarMoeda } from "@/lib/format";
@@ -19,9 +20,14 @@ function hojeISO() {
 export function ListaContasVariaveis({
   contas,
   pessoas,
+  mes,
+  pagas,
 }: {
   contas: ContaVariavelDTO[];
   pessoas: PessoaDTO[];
+  mes: string;
+  /** Ids das parcelas já quitadas no mês em foco. */
+  pagas: string[];
 }) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
@@ -88,7 +94,10 @@ export function ListaContasVariaveis({
   return (
     <>
       <div className="page-actions">
-        <div className="text-muted">Gastos do mês e parcelamentos</div>
+        <div className="text-muted">
+          Gastos do mês e parcelamentos · {pagas.length} de {contas.length}
+          {" "}paga(s) neste mês
+        </div>
 
         <button
           className="btn btn-primary"
@@ -130,6 +139,15 @@ export function ListaContasVariaveis({
                           <span>{conta.parcelas}x</span>
                         </>
                       ) : null}
+                    </div>
+
+                    <div className="mt-8">
+                      <BotaoStatus
+                        tipo="VARIAVEL"
+                        contaId={conta.id}
+                        mes={mes}
+                        pago={pagas.includes(conta.id)}
+                      />
                     </div>
                   </div>
 
