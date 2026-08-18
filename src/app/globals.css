@@ -991,13 +991,14 @@ select.input option {
 
 /* TOAST */
 
+/* Sobe acima do botão da Central de Ajuda, que mora no mesmo canto. */
 .toast-container {
 
     position: fixed;
 
     right: 24px;
 
-    bottom: 24px;
+    bottom: 88px;
 
     display: flex;
 
@@ -4060,6 +4061,431 @@ a.btn-token-config {
     margin-top: 3px;
 
     accent-color: var(--accent);
+}
+
+
+/* ==========================================================================
+   CENTRAL DE AJUDA (botão fixo no canto inferior direito)
+   ========================================================================== */
+
+.ajuda-botao {
+
+    position: fixed;
+
+    right: 24px;
+
+    bottom: 24px;
+
+    z-index: 500;
+
+    width: 52px;
+
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 50%;
+
+    background: var(--accent);
+
+    color: #fff;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow: var(--shadow);
+
+    transition: transform .15s ease, filter .15s ease;
+}
+
+.ajuda-botao:hover {
+
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+}
+
+/* Aviso de novidade não lida */
+
+.ajuda-ponto {
+
+    position: absolute;
+
+    top: 4px;
+
+    right: 4px;
+
+    width: 12px;
+
+    height: 12px;
+
+    border: 2px solid var(--bg-0);
+
+    border-radius: 50%;
+
+    background: var(--danger);
+}
+
+.ajuda-ponto-aba {
+
+    display: inline-block;
+
+    width: 7px;
+
+    height: 7px;
+
+    margin-left: 6px;
+
+    border-radius: 50%;
+
+    background: var(--danger);
+
+    vertical-align: middle;
+}
+
+.ajuda-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 480;
+
+    background: var(--blk-50);
+}
+
+.ajuda-painel {
+
+    position: fixed;
+
+    right: 24px;
+
+    bottom: 88px;
+
+    z-index: 500;
+
+    display: flex;
+
+    flex-direction: column;
+
+    width: 380px;
+
+    max-width: calc(100vw - 32px);
+
+    max-height: min(560px, calc(100vh - 130px));
+
+    background: var(--bg-1);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+.ajuda-cabecalho {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.ajuda-titulo {
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    color: var(--text-1);
+}
+
+.ajuda-subtitulo {
+
+    margin-top: 2px;
+
+    font-size: 12px;
+
+    color: var(--text-2);
+}
+
+.ajuda-fechar {
+
+    background: none;
+
+    border: 0;
+
+    color: var(--text-2);
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    line-height: 1;
+}
+
+.ajuda-fechar:hover {
+
+    color: var(--text-1);
+}
+
+.ajuda-abas {
+
+    display: flex;
+
+    gap: 4px;
+
+    padding: 10px 12px;
+
+    border-bottom: 1px solid var(--border);
+
+    background: var(--wht-02);
+}
+
+.ajuda-aba {
+
+    flex: 1;
+
+    padding: 7px 8px;
+
+    border: 1px solid transparent;
+
+    border-radius: 999px;
+
+    background: none;
+
+    color: var(--text-2);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.ajuda-aba:hover {
+
+    color: var(--text-1);
+}
+
+.ajuda-aba.ativa {
+
+    border-color: var(--border);
+
+    background: var(--wht-06);
+
+    color: var(--text-1);
+}
+
+.ajuda-conteudo {
+
+    padding: 12px;
+
+    overflow-y: auto;
+}
+
+.ajuda-lista {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.ajuda-item {
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    background: var(--wht-03);
+
+    overflow: hidden;
+}
+
+.ajuda-item.aberto {
+
+    background: var(--wht-05);
+}
+
+.ajuda-item-topo {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    width: 100%;
+
+    padding: 12px 14px;
+
+    background: none;
+
+    border: 0;
+
+    color: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.ajuda-item-texto {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+.ajuda-item-data {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: .03em;
+
+    color: var(--accent);
+}
+
+.ajuda-item-titulo {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--text-1);
+}
+
+.ajuda-item-seta {
+
+    color: var(--text-2);
+
+    font-size: 10px;
+
+    flex-shrink: 0;
+}
+
+.ajuda-item-corpo {
+
+    padding: 0 14px 14px;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+
+    color: var(--text-2);
+}
+
+.ajuda-item-corpo p + p {
+
+    margin-top: 8px;
+}
+
+.ajuda-itens {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    list-style: none;
+}
+
+.ajuda-itens li {
+
+    position: relative;
+
+    padding-left: 16px;
+}
+
+.ajuda-itens li::before {
+
+    content: "•";
+
+    position: absolute;
+
+    left: 2px;
+
+    color: var(--accent);
+}
+
+/* O verde do tema escuro fica lavado sobre o branco: no tema claro a data e
+   os marcadores usam um tom mais fechado para continuarem legíveis. */
+@media (prefers-color-scheme: light) {
+
+    .ajuda-item-data,
+    .ajuda-itens li::before {
+
+        color: #047857;
+    }
+}
+
+/* No celular o painel ocupa a tela toda de baixo para cima */
+
+@media (max-width: 560px) {
+
+    .ajuda-botao {
+
+        right: 16px;
+
+        bottom: 16px;
+
+        width: 46px;
+
+        height: 46px;
+
+        font-size: 19px;
+    }
+
+    .ajuda-painel {
+
+        right: 12px;
+
+        left: 12px;
+
+        bottom: 74px;
+
+        width: auto;
+
+        max-height: calc(100vh - 120px);
+    }
+
+    .ajuda-aba {
+
+        font-size: 11px;
+
+        padding: 7px 4px;
+    }
 }
 
 

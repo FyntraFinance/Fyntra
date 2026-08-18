@@ -1,0 +1,74 @@
+/**
+ * Histórico de atualizações mostrado na Central de Ajuda (aba Novidades).
+ *
+ * REGRA: toda alteração que o usuário percebe (funcionalidade nova, mudança
+ * de comportamento, correção visível) entra aqui como uma nova entrada NO
+ * TOPO da lista. Sem entrada, a atualização não existe para quem usa o app.
+ * Os detalhes ficam em `itens`, escritos para o usuário final — nada de nome
+ * de arquivo, tabela ou termo técnico.
+ */
+
+export type EntradaChangelog = {
+  /** Data da atualização, no formato YYYY-MM-DD. */
+  data: string;
+  /** Resumo curto: é o que aparece fechado, e abre ao clicar. */
+  titulo: string;
+  /** O que mudou, em linguagem de usuário. */
+  itens: string[];
+};
+
+/** Da mais recente para a mais antiga. */
+export const CHANGELOG: EntradaChangelog[] = [
+  {
+    data: "2026-08-18",
+    titulo: "Central de Ajuda com as novidades do app",
+    itens: [
+      "Botão de ajuda no canto inferior direito, disponível em qualquer tela.",
+      "Aba Novidades: o histórico de tudo que muda no app — clique no título de uma atualização para ver os detalhes.",
+      "Aba Como usar: um guia rápido de cada área do Fyntra.",
+      "Aba Dúvidas: as perguntas mais comuns sobre divisão de contas, convites e metas.",
+      "Uma bolinha vermelha no botão avisa quando existe novidade que você ainda não leu.",
+    ],
+  },
+  {
+    data: "2026-08-18",
+    titulo: "Eventos, status das contas, ganhos extras e meta manual",
+    itens: [
+      "Nova aba Eventos: cadastre a viagem ou a festa, coloque quem vai — inclusive quem não é da família — e cada gasto é dividido em partes iguais. A parte de quem é da família entra automaticamente nas contas variáveis dela.",
+      "Todas as contas agora têm status Pago ou Em andamento, mês a mês. Clique no selo para alternar.",
+      "Nova aba Ganhos Extras: freela, bônus ou venda no nome de uma pessoa, com opção de repetir todo mês. O valor soma na renda dela e na sobra da família.",
+      "Metas: agora você escolhe entre contribuição automática (divide a sobra do mês) e manual (você define o valor). Também dá para registrar quanto guardou usando o botão 💰.",
+      "O campo Livre por dia só aparece quando a pessoa realmente tem sobra no mês.",
+      "O painel contábil passou a mostrar os ganhos extras e o status de cada conta.",
+    ],
+  },
+  {
+    data: "2026-08-10",
+    titulo: "Você decide se a contabilidade vê os seus dados",
+    itens: [
+      "Nova opção no Perfil para autorizar (ou não) que a contabilidade acompanhe as finanças da sua família.",
+      "Com a opção desmarcada, a família some do painel contábil por completo — nem o nome aparece.",
+    ],
+  },
+  {
+    data: "2026-07-25",
+    titulo: "Recuperação de senha e ajustes visuais",
+    itens: [
+      "Esqueceu a senha? Agora dá para receber um link de redefinição por e-mail.",
+      "Troca de senha direto pelo Perfil.",
+      "Tema claro e tema escuro acompanhando a configuração do seu celular ou computador.",
+      "Navegação reorganizada em abas, sem recarregar a tela.",
+    ],
+  },
+  {
+    data: "2026-07-24",
+    titulo: "Fyntra no celular e convites por e-mail",
+    itens: [
+      "O app pode ser instalado na tela de início do celular e abrir em tela cheia.",
+      "Convide as pessoas da casa por e-mail para que cada uma acompanhe as contas com o próprio login.",
+    ],
+  },
+];
+
+/** Data da entrada mais recente — usada para sinalizar novidade não lida. */
+export const ULTIMA_ATUALIZACAO = CHANGELOG[0]?.data ?? "";
