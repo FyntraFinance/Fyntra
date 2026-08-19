@@ -165,7 +165,44 @@ body {
 
     -webkit-font-smoothing: antialiased;
 
+    /* Android infla o texto de blocos por conta própria (font boosting), o
+       que estourava os cartões no celular com fontes fora de escala. Isto
+       desliga o ajuste automático sem impedir o zoom do usuário. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+
     overflow: hidden;
+}
+
+/* Um item flex não encolhe abaixo do próprio conteúdo sem isto: era o que
+   fazia o nome longo de uma conta empurrar o valor para fora do cartão. */
+.flex-between > *,
+.page-actions > *,
+.membro-item > *,
+.evento-topo > * {
+
+    min-width: 0;
+}
+
+/* ...mas a coluna do valor não pode encolher, senão é o dinheiro que fica
+   cortado. Quem cede espaço é a descrição, que quebra em mais linhas. */
+.flex-between > .text-right,
+.membro-item > .membro-role,
+.evento-topo > .text-right {
+
+    flex-shrink: 0;
+}
+
+/* Palavra comprida (e-mail, nome de conta) quebra em vez de vazar. */
+.list-title,
+.list-sub,
+.empty-title,
+.pessoa-email,
+.sidebar-user-nome,
+.sidebar-user-email,
+.membro-item .list-sub {
+
+    overflow-wrap: anywhere;
 }
 
 /* Controles de formulário não herdam tipografia por padrão — sem isto,
@@ -485,7 +522,7 @@ body {
     grid-template-columns:
         repeat(
             auto-fit,
-            minmax(220px,1fr)
+            minmax(min(220px, 100%), 1fr)
         );
 
     gap: 16px;
@@ -593,7 +630,7 @@ body {
     grid-template-columns:
         repeat(
             auto-fit,
-            minmax(280px,1fr)
+            minmax(min(280px, 100%), 1fr)
         );
 
     gap: 16px;
@@ -879,6 +916,12 @@ select.input option {
 
     justify-content: space-between;
 
+    /* Sem a quebra, a descrição e o botão disputavam a mesma linha e
+       espremiam o texto até vazar em telas estreitas. */
+    flex-wrap: wrap;
+
+    gap: 12px;
+
     margin-bottom: 24px;
 }
 
@@ -905,6 +948,8 @@ select.input option {
     align-items: center;
 
     justify-content: space-between;
+
+    gap: 12px;
 }
 
 .gap-12 {
@@ -1665,6 +1710,70 @@ select.input option {
         font-size: 14px;
     }
 
+    /* No celular a ação principal ocupa a linha inteira, embaixo do texto:
+       lado a lado sobrava pouco espaço para os dois. */
+    .page-actions {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 10px;
+    }
+
+    .page-actions .btn {
+
+        width: 100%;
+    }
+
+    .page-title {
+
+        font-size: 20px;
+    }
+
+    .page-header {
+
+        margin-bottom: 20px;
+    }
+
+    /* O seletor de mês reserva menos espaço fixo para caber com o menu. */
+    .month-label {
+
+        min-width: 0;
+
+        padding: 6px 8px;
+    }
+
+    #main-header {
+
+        padding: 0 14px;
+
+        gap: 8px;
+    }
+
+    .card-title {
+
+        font-size: 15px;
+    }
+
+    .metric-icon {
+
+        margin-bottom: 10px;
+    }
+
+    .metrics-grid {
+
+        grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+
+        gap: 10px;
+    }
+
+    .evento-acoes .btn,
+    .perfil-meta-acoes .btn {
+
+        flex: 1;
+    }
+
     #app {
 
         padding: 14px;
@@ -1675,9 +1784,11 @@ select.input option {
         padding: 14px;
     }
 
+    /* "R$ 12.600,00" em 22px não cabia na largura do cartão no celular e
+       saía cortado no meio. */
     .metric-value {
 
-        font-size: 22px;
+        font-size: 18px;
     }
 
     .metric-icon {
@@ -1695,7 +1806,7 @@ select.input option {
 
     .list-amount {
 
-        font-size: 16px;
+        font-size: 15px;
     }
 
     /* No celular a área de toque não pode encolher: 44px é o mínimo
@@ -2091,7 +2202,7 @@ select.input option {
     grid-template-columns:
         repeat(
             auto-fit,
-            minmax(300px, 1fr)
+            minmax(min(300px, 100%), 1fr)
         );
 
     gap: 16px;
@@ -2797,10 +2908,12 @@ select.input option {
 
     display: grid;
 
+    /* min(280px, 100%) em vez de 280px fixo: numa tela de 320px a coluna
+       de 280 + o respiro do cartão estourava a largura. */
     grid-template-columns:
         repeat(
             auto-fill,
-            minmax(280px, 1fr)
+            minmax(min(280px, 100%), 1fr)
         );
 
     gap: 16px;
@@ -5012,6 +5125,71 @@ a.btn-token-config {
     .forma-opcoes {
 
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+/* ==========================================================================
+   PERFIL — cartões de configuração
+   ========================================================================== */
+
+/* Os cartões passaram a ter alturas bem diferentes (um só com um botão,
+   outro com switch e aviso). O corpo cresce e o botão desce para a base,
+   deixando a fileira alinhada. */
+.perfil-card-body {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    flex: 1;
+}
+
+.perfil-card-body .perfil-btn {
+
+    margin-top: auto;
+}
+
+.perfil-card-desc {
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+/* O cartão de relatório é a ação principal da tela. */
+.perfil-card-destaque {
+
+    border-color:
+        rgba(16,185,129,.35);
+}
+
+.perfil-card-destaque .perfil-card-title {
+
+    color: var(--texto-marca);
+}
+
+.perfil-card .form-label {
+
+    margin-bottom: -4px;
+}
+
+@media (max-width: 600px) {
+
+    .perfil-card {
+
+        padding: 18px;
+    }
+
+    .perfil-card-icon {
+
+        width: 44px;
+
+        height: 44px;
+
+        font-size: 20px;
     }
 }
 

@@ -156,10 +156,6 @@ export const conviteSchema = z.object({
   role: z.enum(["ADMIN", "MEMBER"]).default("MEMBER"),
 });
 
-export const tokenIaSchema = z.object({
-  token: z.string().trim().min(8, "Token inválido"),
-});
-
 export function primeiroErro(erro: z.ZodError) {
   return erro.issues[0]?.message ?? "Dados inválidos";
 }

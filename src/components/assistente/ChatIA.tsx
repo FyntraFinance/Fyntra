@@ -236,11 +236,8 @@ export function ChatIA({
             </p>
 
             {!temToken ? (
-              <p className="mt-4">
-                <Link href="/perfil" className="auth-link">
-                  Configure o token da Poe no Perfil
-                </Link>{" "}
-                para começar.
+              <p className="mt-4 text-muted">
+                O assistente está sem chave de acesso configurada no momento.
               </p>
             ) : null}
           </div>

@@ -74,6 +74,13 @@ export const GUIA: TopicoAjuda[] = [
     ],
   },
   {
+    titulo: "📊 Relatório em Excel",
+    paragrafos: [
+      "No Perfil, escolha o mês e baixe a planilha. Ela abre no Excel, no Google Planilhas ou em qualquer programa de planilha.",
+      "A primeira aba traz o resumo do mês — entradas, saídas e sobra — com um gráfico dos gastos por categoria. As outras trazem contas fixas, contas variáveis, ganhos extras e o que foi guardado em metas, cada uma na sua aba.",
+    ],
+  },
+  {
     titulo: "🧮 Painel Contábil",
     paragrafos: [
       "Aparece apenas para quem é da equipe de contabilidade. Mostra o relatório financeiro de cada família que autorizou o compartilhamento.",

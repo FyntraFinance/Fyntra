@@ -3,6 +3,7 @@ import { ListaMetas } from "@/components/perfil/ListaMetas";
 import { PainelPerfil } from "@/components/perfil/PainelPerfil";
 import { TrocarSenha } from "@/components/perfil/TrocarSenha";
 import { listarMembros, listarMetas, obterConfiguracao } from "@/lib/dados";
+import { obterMesSelecionado } from "@/lib/mes";
 import { obterContexto, podeAdministrar } from "@/lib/workspace";
 
 export const metadata = {
@@ -12,10 +13,11 @@ export const metadata = {
 export default async function PerfilPage() {
   const contexto = await obterContexto();
 
-  const [metas, configuracao, membros] = await Promise.all([
+  const [metas, configuracao, membros, mes] = await Promise.all([
     listarMetas(contexto.workspaceId),
     obterConfiguracao(contexto.workspaceId),
     listarMembros(contexto.workspaceId, contexto.userId),
+    obterMesSelecionado(),
   ]);
 
   return (
@@ -24,12 +26,12 @@ export default async function PerfilPage() {
         <h1 className="page-title">⚙️ Perfil &amp; Configurações</h1>
 
         <p className="text-muted" style={{ marginTop: 4 }}>
-          {contexto.workspaceNome} — gerencie seus dados e integrações
+          {contexto.workspaceNome} — relatórios, acesso e metas da família
         </p>
       </div>
 
       <PainelPerfil
-        temTokenIa={configuracao.temTokenIa}
+        mes={mes}
         compartilharComContadora={configuracao.compartilharComContadora}
         podeAlterarCompartilhamento={podeAdministrar(contexto.role)}
       />

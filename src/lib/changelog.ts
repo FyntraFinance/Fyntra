@@ -20,6 +20,17 @@ export type EntradaChangelog = {
 /** Da mais recente para a mais antiga. */
 export const CHANGELOG: EntradaChangelog[] = [
   {
+    data: "2026-08-19",
+    titulo: "Relatório em Excel, Perfil mais simples e correções no celular",
+    itens: [
+      "Novo relatório do mês no Perfil: baixe uma planilha do Excel com o resumo, um gráfico dos gastos por categoria e uma aba para cada coisa — contas fixas, contas variáveis, ganhos extras e o que foi guardado em metas.",
+      "No celular, os valores dos cartões e das contas apareciam cortados pela metade. Os tamanhos foram ajustados e agora cabem inteiros na tela.",
+      "O texto do app também era aumentado por conta própria pelo celular, saindo fora de proporção. Isso foi corrigido.",
+      "Em telas estreitas, o botão de cadastrar agora ocupa a linha inteira, embaixo da descrição, em vez de disputar espaço com ela.",
+      "O Perfil ficou mais direto: saíram as opções de exportar backup, importar backup e token da IA.",
+    ],
+  },
+  {
     data: "2026-08-18",
     titulo: "Guardar em metas, formas de pagamento e visual renovado",
     itens: [
