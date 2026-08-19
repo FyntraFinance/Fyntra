@@ -1,4 +1,5 @@
 import type {
+  FormaPagamento,
   PapelUsuario,
   Role,
   StatusConvite,
@@ -7,6 +8,7 @@ import type {
 } from "@prisma/client";
 
 export type {
+  FormaPagamento,
   PapelUsuario,
   Role,
   StatusConvite,
@@ -56,6 +58,7 @@ export type ContaVariavelDTO = {
   mesInicio: string;
   mesFim: string;
   parcelas: number;
+  formaPagamento: FormaPagamento;
   observacao: string | null;
 };
 
@@ -67,6 +70,17 @@ export type MetaDTO = {
   valorAtual: number;
   contribuicaoMensal: number | null;
   cor: string;
+};
+
+export type AporteMetaDTO = {
+  id: string;
+  metaId: string;
+  nomeMeta: string;
+  emojiMeta: string;
+  valor: number;
+  data: string;
+  mes: string;
+  observacao: string | null;
 };
 
 export type GanhoExtraDTO = {
@@ -168,6 +182,14 @@ export const CATEGORIAS_EVENTO = [
   "Compras",
   "Lazer",
   "Outros",
+];
+
+/** Rótulos das formas de pagamento, na ordem em que aparecem no formulário. */
+export const FORMAS_PAGAMENTO: { valor: FormaPagamento; rotulo: string }[] = [
+  { valor: "CARTAO", rotulo: "💳 Cartão" },
+  { valor: "PIX", rotulo: "⚡ Pix" },
+  { valor: "DINHEIRO", rotulo: "💵 Dinheiro" },
+  { valor: "BOLETO", rotulo: "🧾 Boleto" },
 ];
 
 export const CATEGORIAS_GANHO = [

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type {
+  AporteMetaDTO,
   ContaFixaDTO,
   ContaVariavelDTO,
   EventoDTO,
@@ -80,6 +81,7 @@ export async function listarContasVariaveis(
     mesInicio: conta.mesInicio,
     mesFim: conta.mesFim,
     parcelas: conta.parcelas,
+    formaPagamento: conta.formaPagamento,
     observacao: conta.observacao,
   }));
 }
@@ -99,6 +101,27 @@ export async function listarMetas(workspaceId: string): Promise<MetaDTO[]> {
     contribuicaoMensal:
       meta.contribuicaoMensal === null ? null : Number(meta.contribuicaoMensal),
     cor: meta.cor,
+  }));
+}
+
+export async function listarAportes(
+  workspaceId: string,
+): Promise<AporteMetaDTO[]> {
+  const aportes = await prisma.aporteMeta.findMany({
+    where: { workspaceId },
+    orderBy: { data: "desc" },
+    include: { meta: { select: { nome: true, emoji: true } } },
+  });
+
+  return aportes.map((aporte) => ({
+    id: aporte.id,
+    metaId: aporte.metaId,
+    nomeMeta: aporte.meta.nome,
+    emojiMeta: aporte.meta.emoji,
+    valor: Number(aporte.valor),
+    data: aporte.data,
+    mes: aporte.mes,
+    observacao: aporte.observacao,
   }));
 }
 
@@ -230,6 +253,11 @@ export async function obterConfiguracao(workspaceId: string) {
     compartilharComContadora: configuracao?.compartilharComContadora ?? true,
     temTokenIa: Boolean(configuracao?.poeApiKey),
   };
+}
+
+/** Aportes guardados no mês em foco. */
+export function aportesDoMes(aportes: AporteMetaDTO[], mes: string) {
+  return aportes.filter((aporte) => aporte.mes === mes);
 }
 
 /** Ganho extra vale para o mês em que caiu; o recorrente vale de lá em diante. */

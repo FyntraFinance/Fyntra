@@ -15,9 +15,11 @@ import {
   calcularTotais,
 } from "@/lib/calculos";
 import {
+  aportesDoMes,
   contasFixasDoMes,
   contasVariaveisDoMes,
   ganhosExtrasDoMes,
+  listarAportes,
   listarContasFixas,
   listarContasVariaveis,
   listarGanhosExtras,
@@ -42,6 +44,13 @@ const ROTULO_ROLE: Record<string, string> = {
   OWNER: "Dono",
   ADMIN: "Administrador",
   MEMBER: "Membro",
+};
+
+const ROTULO_FORMA: Record<string, string> = {
+  CARTAO: "Cartão",
+  PIX: "Pix",
+  DINHEIRO: "Dinheiro",
+  BOLETO: "Boleto",
 };
 
 export default async function RelatorioFamiliaPage({
@@ -86,31 +95,47 @@ export default async function RelatorioFamiliaPage({
     );
   }
 
-  const [pessoas, todasFixas, todasVariaveis, todosGanhos, metas, status] =
-    await Promise.all([
-      listarPessoas(workspaceId),
-      listarContasFixas(workspaceId),
-      listarContasVariaveis(workspaceId),
-      listarGanhosExtras(workspaceId),
-      listarMetas(workspaceId),
-      listarStatusGastos(workspaceId, mes),
-    ]);
+  const [
+    pessoas,
+    todasFixas,
+    todasVariaveis,
+    todosGanhos,
+    metas,
+    todosAportes,
+    status,
+  ] = await Promise.all([
+    listarPessoas(workspaceId),
+    listarContasFixas(workspaceId),
+    listarContasVariaveis(workspaceId),
+    listarGanhosExtras(workspaceId),
+    listarMetas(workspaceId),
+    listarAportes(workspaceId),
+    listarStatusGastos(workspaceId, mes),
+  ]);
 
   const fixasMes = contasFixasDoMes(todasFixas, mes);
   const variaveisMes = contasVariaveisDoMes(todasVariaveis, mes);
   const ganhosMes = ganhosExtrasDoMes(todosGanhos, mes);
+  const aportesMes = aportesDoMes(todosAportes, mes);
 
-  const totais = calcularTotais(pessoas, fixasMes, variaveisMes, ganhosMes);
+  const totais = calcularTotais(
+    pessoas,
+    fixasMes,
+    variaveisMes,
+    ganhosMes,
+    aportesMes,
+  );
 
   const resumoPessoas = calcularResumoPessoas(
     pessoas,
     fixasMes,
     variaveisMes,
     ganhosMes,
+    aportesMes,
   );
 
-  const metasCalculadas = calcularMetas(metas, totais.sobra, mes);
-  const porCategoria = calcularPorCategoria(fixasMes, variaveisMes);
+  const metasCalculadas = calcularMetas(metas, totais.sobra, mes, aportesMes);
+  const porCategoria = calcularPorCategoria(fixasMes, variaveisMes, aportesMes);
 
   const evolucaoAnual = calcularEvolucaoAnual(
     mes.split("-")[0],
@@ -125,6 +150,7 @@ export default async function RelatorioFamiliaPage({
     { nome: "Extras", valor: totais.totalGanhosExtras, cor: "#22c55e" },
     { nome: "Fixas", valor: totais.totalFixas, cor: "#3b82f6" },
     { nome: "Variáveis", valor: totais.totalVariaveis, cor: "#8b5cf6" },
+    { nome: "Metas", valor: totais.totalAportes, cor: "#f59e0b" },
     { nome: "Sobra", valor: Math.max(0, totais.sobra), cor: "#06b6d4" },
   ];
 
@@ -201,6 +227,14 @@ export default async function RelatorioFamiliaPage({
           <div className="metric-label">Contas Variáveis</div>
           <div className="metric-value">
             {formatarMoeda(totais.totalVariaveis)}
+          </div>
+        </div>
+
+        <div className="card metric-card c-amber">
+          <div className="metric-icon amber">🎯</div>
+          <div className="metric-label">Guardado em Metas</div>
+          <div className="metric-value">
+            {formatarMoeda(totais.totalAportes)}
           </div>
         </div>
 
@@ -399,6 +433,7 @@ export default async function RelatorioFamiliaPage({
                     <div className="list-title">{conta.nome}</div>
                     <div className="list-sub">
                       <span>{conta.categoria}</span>
+                      <span>{ROTULO_FORMA[conta.formaPagamento]}</span>
                       <span>{nomePorPessoa.get(conta.pessoaId) ?? "pessoa removida"}</span>
                       <span>
                         {conta.parcelas > 1

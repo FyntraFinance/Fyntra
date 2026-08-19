@@ -4,8 +4,10 @@ import {
   GraficoCategorias,
   GraficoResumo,
 } from "@/components/dashboard/Graficos";
+import { GuardarNaMeta } from "@/components/dashboard/GuardarNaMeta";
 import type { MetaCalculada, ResumoPessoa, Totais } from "@/lib/calculos";
 import { corAvatar, formatarMesAno, formatarMoeda, inicialNome } from "@/lib/format";
+import type { AporteMetaDTO } from "@/lib/tipos";
 
 type Movimentacao = {
   id: string;
@@ -25,6 +27,7 @@ export function DashboardConteudo({
   dadosResumo,
   movimentacoes,
   mes,
+  aportesMes,
 }: {
   totais: Totais;
   resumoPessoas: ResumoPessoa[];
@@ -39,6 +42,7 @@ export function DashboardConteudo({
   dadosResumo: { nome: string; valor: number; cor: string }[];
   movimentacoes: Movimentacao[];
   mes: string;
+  aportesMes: AporteMetaDTO[];
 }) {
   return (
     <>
@@ -72,6 +76,16 @@ export function DashboardConteudo({
             {formatarMoeda(totais.totalVariaveis)}
           </div>
         </div>
+
+        {totais.totalAportes > 0 ? (
+          <div className="card metric-card c-amber">
+            <div className="metric-icon amber">🎯</div>
+            <div className="metric-label">Guardado em Metas</div>
+            <div className="metric-value">
+              {formatarMoeda(totais.totalAportes)}
+            </div>
+          </div>
+        ) : null}
 
         <div className="card metric-card c-red">
           <div className="metric-icon red">📉</div>
@@ -157,6 +171,20 @@ export function DashboardConteudo({
 
                 <div className="meta-dash-stats">
                   <div className="meta-stat-item">
+                    <span className="meta-stat-label">Guardado no mês</span>
+
+                    <span className="meta-stat-val">
+                      {meta.aportadoNoMes > 0 ? (
+                        <span className="valor-positivo">
+                          {formatarMoeda(meta.aportadoNoMes)}
+                        </span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="meta-stat-item">
                     <span className="meta-stat-label">Guardar/mês</span>
 
                     <span className="meta-stat-val">
@@ -172,7 +200,7 @@ export function DashboardConteudo({
 
                     <span className="meta-stat-val">
                       {meta.concluida ? (
-                        <span style={{ color: "#10b981" }}>✅ Concluída!</span>
+                        <span className="valor-positivo">✅ Concluída!</span>
                       ) : meta.mesConclusao ? (
                         formatarMesAno(meta.mesConclusao)
                       ) : (
@@ -181,6 +209,17 @@ export function DashboardConteudo({
                     </span>
                   </div>
                 </div>
+
+                <GuardarNaMeta
+                  metaId={meta.id}
+                  nomeMeta={meta.nome}
+                  emojiMeta={meta.emoji}
+                  mes={mes}
+                  sobra={totais.sobra}
+                  aportes={aportesMes.filter(
+                    (aporte) => aporte.metaId === meta.id,
+                  )}
+                />
               </div>
             ))}
           </div>

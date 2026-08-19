@@ -61,6 +61,7 @@ model Workspace {
   gastosEvento    GastoEvento[]
   ganhosExtras    GanhoExtra[]
   pagamentos      PagamentoConta[]
+  aportesMeta     AporteMeta[]
 }
 
 model WorkspaceMembro {
@@ -162,32 +163,42 @@ enum TipoContaFixa {
 }
 
 model ContaVariavel {
-  id            String       @id @default(cuid())
-  nome          String
-  valorTotal    Decimal      @db.Decimal(15, 2)
-  valorParcela  Decimal      @db.Decimal(15, 2)
-  categoria     String       @default("Outros")
-  pessoaId      String
-  pessoa        Pessoa       @relation(fields: [pessoaId], references: [id], onDelete: Restrict)
-  data          String
-  mesInicio     String
-  mesFim        String
-  parcelas      Int          @default(1)
-  observacao    String?
-  workspaceId   String
-  workspace     Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id             String         @id @default(cuid())
+  nome           String
+  valorTotal     Decimal        @db.Decimal(15, 2)
+  valorParcela   Decimal        @db.Decimal(15, 2)
+  categoria      String         @default("Outros")
+  pessoaId       String
+  pessoa         Pessoa         @relation(fields: [pessoaId], references: [id], onDelete: Restrict)
+  data           String
+  mesInicio      String
+  mesFim         String
+  parcelas       Int            @default(1)
+  /// Como a conta foi paga. Só o cartão parcela; as outras formas quitam no
+  /// próprio mês.
+  formaPagamento FormaPagamento @default(CARTAO)
+  observacao     String?
+  workspaceId    String
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   /// Preenchido quando a conta é a cota de um gasto de evento/viagem: ela é
   /// mantida pelo próprio evento e some junto com ele.
-  gastoEventoId String?
-  gastoEvento   GastoEvento? @relation(fields: [gastoEventoId], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  gastoEventoId  String?
+  gastoEvento    GastoEvento?   @relation(fields: [gastoEventoId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   pagamentos PagamentoConta[]
 
   @@index([workspaceId])
   @@index([mesInicio, mesFim])
   @@index([gastoEventoId])
+}
+
+enum FormaPagamento {
+  CARTAO
+  PIX
+  DINHEIRO
+  BOLETO
 }
 
 model Meta {
@@ -203,7 +214,27 @@ model Meta {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
+  aportes AporteMeta[]
+
   @@index([workspaceId])
+}
+
+/// Dinheiro separado para uma meta em um mês. Guardar é uma saída de caixa:
+/// o valor sai da sobra daquele mês e passa a contar como já guardado.
+model AporteMeta {
+  id          String    @id @default(cuid())
+  metaId      String
+  meta        Meta      @relation(fields: [metaId], references: [id], onDelete: Cascade)
+  valor       Decimal   @db.Decimal(15, 2)
+  data        String
+  mes         String
+  observacao  String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, mes])
+  @@index([metaId])
 }
 
 model Configuracao {

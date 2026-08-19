@@ -67,6 +67,16 @@ export const contaVariavelSchema = z.object({
   pessoaId: z.string().min(1, "Selecione uma pessoa"),
   data: z.string().regex(DATA, "Data inválida"),
   parcelas: z.coerce.number().int().min(1, "Mínimo 1 parcela").max(360),
+  formaPagamento: z
+    .enum(["CARTAO", "PIX", "DINHEIRO", "BOLETO"])
+    .default("CARTAO"),
+  observacao: z.string().trim().max(500).optional(),
+});
+
+export const aporteSchema = z.object({
+  metaId: z.string().min(1, "Meta inválida"),
+  valor: z.coerce.number().min(0, "Valor inválido"),
+  data: z.string().regex(DATA, "Data inválida"),
   observacao: z.string().trim().max(500).optional(),
 });
 

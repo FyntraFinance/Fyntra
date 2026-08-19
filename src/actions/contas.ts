@@ -116,6 +116,7 @@ export async function salvarContaVariavel(dados: {
   pessoaId: string;
   data: string;
   parcelas: number | string;
+  formaPagamento?: "CARTAO" | "PIX" | "DINHEIRO" | "BOLETO";
   observacao?: string;
 }): Promise<ResultadoAcao> {
   const parsed = contaVariavelSchema.safeParse(dados);
@@ -132,13 +133,16 @@ export async function salvarContaVariavel(dados: {
     categoria,
     pessoaId,
     data,
-    parcelas,
+    formaPagamento,
     observacao,
   } = parsed.data;
 
   if (!(await pessoaValida(pessoaId, workspaceId))) {
     return { ok: false, mensagem: "Selecione uma pessoa válida." };
   }
+
+  // Pix, dinheiro e boleto saem de uma vez; só o cartão se estende por meses.
+  const parcelas = formaPagamento === "CARTAO" ? parsed.data.parcelas : 1;
 
   const mesInicio = data.slice(0, 7);
 
@@ -152,6 +156,7 @@ export async function salvarContaVariavel(dados: {
     mesInicio,
     mesFim: adicionarMeses(mesInicio, parcelas - 1),
     parcelas,
+    formaPagamento,
     observacao: observacao || null,
   };
 

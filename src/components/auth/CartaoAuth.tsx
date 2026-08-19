@@ -12,11 +12,21 @@ export function CartaoAuth({
   return (
     <div className="auth-wrap">
       <div className="auth-card">
+        {/* A marca aparece pela logo, não por um emoji genérico. As duas
+            versões ficam empilhadas e o CSS mostra a do tema em uso. */}
         <div className="auth-brand">
-          <div className="brand-icon">💰</div>
-          <div className="brand-text">
-            Fyn<span>tra</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="auth-logo logo-tema-escuro"
+            src="/logo-fyntra.png"
+            alt="Fyntra"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="auth-logo logo-tema-claro"
+            src="/logo-fyntra-light.png"
+            alt="Fyntra"
+          />
         </div>
 
         <h1 className="auth-title">{titulo}</h1>

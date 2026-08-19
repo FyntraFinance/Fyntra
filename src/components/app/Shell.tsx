@@ -16,6 +16,7 @@ import { ListaPessoas } from "@/components/pessoas/ListaPessoas";
 import type { MetaCalculada, ResumoPessoa, Totais } from "@/lib/calculos";
 import { inicialNome } from "@/lib/format";
 import type {
+  AporteMetaDTO,
   ContaFixaDTO,
   ContaVariavelDTO,
   EventoDTO,
@@ -70,6 +71,7 @@ export type DadosAbas = {
       pago: boolean;
     }[];
     mes: string;
+    aportesMes: AporteMetaDTO[];
   };
   pessoas: { pessoas: PessoaDTO[]; podeConvidar: boolean };
   contasFixas: {
@@ -176,25 +178,21 @@ export function Shell({
       />
 
       <aside id="sidebar" className={menuAberto ? "open" : ""}>
+        {/* A marca é a logo — o nome já vem desenhado nela, sem texto solto
+            ao lado. */}
         <div className="brand">
-          <div className="brand-icon-logo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="logo-tema-escuro"
-              src="/logo-simbolo.png"
-              alt="Fyntra"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="logo-tema-claro"
-              src="/logo-simbolo-light.png"
-              alt="Fyntra"
-            />
-          </div>
-
-          <div className="brand-text">
-            Fyn<span>tra</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="brand-logo logo-tema-escuro"
+            src="/logo-fyntra.png"
+            alt="Fyntra"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="brand-logo logo-tema-claro"
+            src="/logo-fyntra-light.png"
+            alt="Fyntra"
+          />
         </div>
 
         <div className="sidebar-section">MENU</div>

@@ -31,7 +31,8 @@ export const GUIA: TopicoAjuda[] = [
     titulo: "💳 Contas Variáveis",
     paragrafos: [
       "Os gastos do dia a dia e as compras parceladas, sempre no nome de uma pessoa.",
-      "Ao informar o número de parcelas, o app espalha o valor pelos meses seguintes automaticamente — cada mês mostra só a parcela daquele mês.",
+      "Escolha como pagou: cartão, Pix, dinheiro ou boleto. O selo colorido na lista ajuda a identificar cada gasto de relance.",
+      "Só o cartão parcela. Ao informar o número de parcelas, o app espalha o valor pelos meses seguintes — cada mês mostra só a parcela daquele mês. As outras formas quitam no próprio mês.",
     ],
   },
   {
@@ -61,7 +62,8 @@ export const GUIA: TopicoAjuda[] = [
     paragrafos: [
       "Ficam no Perfil. Cada meta tem um valor alvo e o quanto já foi guardado.",
       "No modo automático, a sobra do mês é dividida entre as metas automáticas. No modo manual, você define quanto pretende guardar por mês.",
-      "Use o botão 💰 para registrar um valor guardado agora — ele soma ao total da meta.",
+      "Para registrar dinheiro que você guardou de verdade, use o botão Guardar no cartão da meta, no Dashboard. O valor entra na meta e sai do saldo daquele mês — afinal, o dinheiro guardado não está mais disponível para gastar.",
+      "Se registrar por engano, abra o mesmo botão Guardar: os aportes do mês aparecem ali e podem ser desfeitos.",
     ],
   },
   {

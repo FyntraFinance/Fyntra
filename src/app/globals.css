@@ -31,6 +31,8 @@
     --texto-aviso: #fbbf24;
     --texto-info: #60a5fa;
     --texto-marca: #34d399;
+    --texto-roxo: #a78bfa;
+    --texto-ciano: #22d3ee;
 
     /* Terceiro nível de texto: menos que --text-2, ainda legível. */
     --text-3: #94a3b8;
@@ -103,9 +105,11 @@
            escuro ficavam em 1.7:1 — abaixo de qualquer mínimo legível. */
         --texto-positivo: #047857;
         --texto-negativo: #b91c1c;
-        --texto-aviso: #b45309;
+        --texto-aviso: #92400e;
         --texto-info: #1d4ed8;
         --texto-marca: #047857;
+        --texto-roxo: #6d28d9;
+        --texto-ciano: #0e7490;
 
         --wht-02: rgba(15,23,42,.03);
         --wht-03: rgba(15,23,42,.04);
@@ -181,7 +185,7 @@ textarea {
    valores alinhadas de uma linha para a outra. */
 .metric-value,
 .list-amount,
-.month-label,
+.month-ano,
 .meta-stat-val,
 .meta-dash-valores,
 .perfil-meta-valores,
@@ -1762,71 +1766,116 @@ select.input option {
    MONTH SELECTOR
    ============================= */
 
+/* O seletor de mês é um controle único — um bloco com as duas setas e o mês
+   dentro — em vez de três botões soltos lado a lado. */
 .month-selector {
 
-    display: flex;
+    display: inline-flex;
 
     align-items: center;
 
-    gap: 8px;
+    gap: 2px;
+
+    padding: 3px;
+
+    background: var(--wht-04);
+
+    border: 1px solid var(--border);
+
+    border-radius: 999px;
 }
 
-.month-selector button {
+.month-nav {
+
+    width: 34px;
+
+    height: 34px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
 
     background: none;
 
     border: none;
 
-    color: var(--text-2);
+    border-radius: 50%;
 
-    font-size: 18px;
+    color: var(--text-2);
 
     cursor: pointer;
 
-    padding: 4px 8px;
-
-    border-radius: 8px;
-
-    transition: background .15s, color .15s;
+    transition: background .15s ease, color .15s ease;
 }
 
-.month-selector button:hover {
+.month-nav svg {
+
+    width: 16px;
+
+    height: 16px;
+}
+
+.month-nav:hover:not(:disabled) {
 
     background: var(--wht-08);
 
     color: var(--text-1);
 }
 
+.month-nav:disabled {
+
+    opacity: .5;
+
+    cursor: wait;
+}
+
 .month-label {
 
-    font-size: 15px;
+    display: inline-flex;
 
-    font-weight: 600;
+    align-items: baseline;
 
-    color: var(--text-1);
+    justify-content: center;
 
-    min-width: 160px;
+    gap: 6px;
 
-    text-align: center;
+    min-width: 148px;
 
-    cursor: pointer;
-
-    padding: 6px 14px;
-
-    border-radius: 10px;
+    padding: 6px 12px;
 
     background: none;
 
-    border: 1px solid transparent;
+    border: none;
 
-    transition: background .15s, border-color .15s;
+    border-radius: 999px;
+
+    color: var(--text-1);
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .month-label:hover {
 
-    background: var(--wht-06);
+    background: var(--wht-08);
+}
 
-    border-color: var(--border);
+.month-nome {
+
+    font-weight: 600;
+}
+
+/* O ano fica mais discreto que o mês: quem consulta procura o mês. */
+.month-ano {
+
+    color: var(--text-2);
+
+    font-size: 13px;
 }
 
 /* MÊS PICKER */
@@ -1894,8 +1943,6 @@ select.input option {
 
     color: var(--text-2);
 
-    font-size: 20px;
-
     cursor: pointer;
 
     width: 32px;
@@ -1909,6 +1956,13 @@ select.input option {
     justify-content: center;
 
     transition: background .15s, color .15s;
+}
+
+.picker-nav svg {
+
+    width: 15px;
+
+    height: 15px;
 }
 
 .picker-nav:hover {
@@ -1961,9 +2015,42 @@ select.input option {
 
     border-color: var(--accent);
 
-    color: #fff;
+    color: #0f172a;
 
     font-weight: 600;
+}
+
+/* Marca discreta no mês corrente, para achar o "hoje" ao navegar por anos. */
+.picker-mes-btn.hoje {
+
+    border-color: var(--accent);
+
+    color: var(--texto-marca);
+
+    font-weight: 600;
+}
+
+.picker-hoje {
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding: 8px;
+
+    background: none;
+
+    border: none;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--texto-marca);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
 }
 
 /* =============================
@@ -4656,6 +4743,275 @@ a.btn-token-config {
         font-size: 11px;
 
         padding: 7px 4px;
+    }
+}
+
+
+/* ==========================================================================
+   MARCA NAS TELAS DE ENTRADA
+   ========================================================================== */
+
+/* A logo substitui o emoji + texto que faziam as vezes de marca. As duas
+   versões ficam no HTML e o CSS escolhe pelo tema, como na barra lateral. */
+.brand-logo {
+
+    height: 46px;
+
+    width: auto;
+
+    max-width: 100%;
+
+    object-fit: contain;
+
+    object-position: left center;
+}
+
+.brand-logo.logo-tema-claro {
+
+    display: none;
+}
+
+@media (prefers-color-scheme: light) {
+
+    .brand-logo.logo-tema-escuro {
+
+        display: none;
+    }
+
+    .brand-logo.logo-tema-claro {
+
+        display: block;
+    }
+}
+
+.auth-logo {
+
+    height: 52px;
+
+    width: auto;
+
+    object-fit: contain;
+}
+
+.auth-brand {
+
+    justify-content: center;
+}
+
+.auth-logo.logo-tema-claro {
+
+    display: none;
+}
+
+@media (prefers-color-scheme: light) {
+
+    .auth-logo.logo-tema-escuro {
+
+        display: none;
+    }
+
+    .auth-logo.logo-tema-claro {
+
+        display: block;
+    }
+}
+
+/* ==========================================================================
+   FORMA DE PAGAMENTO DAS CONTAS VARIÁVEIS
+   ========================================================================== */
+
+.forma-opcoes {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 8px;
+}
+
+.forma-opcao {
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--wht-03);
+
+    color: var(--text-1);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.forma-opcao:hover {
+
+    background: var(--wht-06);
+}
+
+.forma-opcao.selecionada {
+
+    border-color: var(--accent);
+
+    background: rgba(16,185,129,.12);
+
+    font-weight: 600;
+}
+
+/* Selo da forma de pagamento na lista, para bater o olho e identificar. */
+.forma-tag {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 1px 8px;
+
+    border-radius: 999px;
+
+    background: var(--wht-06);
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.forma-tag.forma-cartao {
+
+    background: rgba(139,92,246,.15);
+
+    color: var(--texto-roxo);
+}
+
+.forma-tag.forma-pix {
+
+    background: rgba(6,182,212,.15);
+
+    color: var(--texto-ciano);
+}
+
+.forma-tag.forma-dinheiro {
+
+    background: rgba(16,185,129,.15);
+
+    color: var(--texto-positivo);
+}
+
+.forma-tag.forma-boleto {
+
+    background: rgba(245,158,11,.15);
+
+    color: var(--texto-aviso);
+}
+
+/* ==========================================================================
+   GUARDAR DINHEIRO NA META
+   ========================================================================== */
+
+.meta-dash-guardar {
+
+    width: 100%;
+
+    margin-top: 14px;
+}
+
+.aporte-aviso {
+
+    padding: 10px 12px;
+
+    border-radius: 12px;
+
+    background: var(--wht-04);
+
+    border: 1px solid var(--border);
+
+    color: var(--text-2);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.aporte-aviso strong {
+
+    color: var(--text-1);
+}
+
+.aporte-aviso.alerta {
+
+    background: rgba(245,158,11,.12);
+
+    border-color: rgba(245,158,11,.35);
+
+    color: var(--texto-aviso);
+}
+
+.aporte-lista {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-top: 8px;
+}
+
+.aporte-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 8px 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--wht-03);
+
+    font-size: 13px;
+}
+
+.aporte-item strong {
+
+    margin-left: auto;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.aporte-desfazer {
+
+    width: 30px;
+
+    height: 30px;
+
+    font-size: 12px;
+}
+
+/* Cartão de métrica em âmbar, para o dinheiro separado nas metas. */
+.metric-icon.amber {
+
+    background:
+        rgba(245,158,11,.12);
+}
+
+@media (max-width: 600px) {
+
+    .forma-opcoes {
+
+        grid-template-columns: 1fr 1fr;
     }
 }
 

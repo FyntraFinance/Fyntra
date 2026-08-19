@@ -5,6 +5,7 @@ import {
 } from "@/lib/dados";
 import { adicionarMeses } from "@/lib/format";
 import type {
+  AporteMetaDTO,
   ContaFixaDTO,
   ContaVariavelDTO,
   GanhoExtraDTO,
@@ -24,6 +25,10 @@ export function somarGanhos(ganhos: GanhoExtraDTO[]) {
   return ganhos.reduce((total, ganho) => total + ganho.valor, 0);
 }
 
+export function somarAportes(aportes: AporteMetaDTO[]) {
+  return aportes.reduce((total, aporte) => total + aporte.valor, 0);
+}
+
 export type Totais = {
   totalSalarios: number;
   totalGanhosExtras: number;
@@ -31,15 +36,23 @@ export type Totais = {
   totalReceitas: number;
   totalFixas: number;
   totalVariaveis: number;
+  /** Dinheiro separado para as metas neste mês. */
+  totalAportes: number;
   totalGastos: number;
   sobra: number;
 };
 
+/**
+ * Guardar dinheiro para uma meta é uma saída como qualquer outra: entra em
+ * `totalGastos` e some da sobra do mês, senão o valor apareceria como
+ * disponível e guardado ao mesmo tempo.
+ */
 export function calcularTotais(
   pessoas: PessoaDTO[],
   fixasMes: ContaFixaDTO[],
   variaveisMes: ContaVariavelDTO[],
   ganhosMes: GanhoExtraDTO[] = [],
+  aportesMes: AporteMetaDTO[] = [],
 ): Totais {
   const totalSalarios = pessoas.reduce(
     (total, pessoa) => total + pessoa.salario,
@@ -51,7 +64,8 @@ export function calcularTotais(
 
   const totalFixas = somarFixas(fixasMes);
   const totalVariaveis = somarVariaveis(variaveisMes);
-  const totalGastos = totalFixas + totalVariaveis;
+  const totalAportes = somarAportes(aportesMes);
+  const totalGastos = totalFixas + totalVariaveis + totalAportes;
 
   return {
     totalSalarios,
@@ -59,6 +73,7 @@ export function calcularTotais(
     totalReceitas,
     totalFixas,
     totalVariaveis,
+    totalAportes,
     totalGastos,
     sobra: totalReceitas - totalGastos,
   };
@@ -85,9 +100,15 @@ export function calcularResumoPessoas(
   fixasMes: ContaFixaDTO[],
   variaveisMes: ContaVariavelDTO[],
   ganhosMes: GanhoExtraDTO[] = [],
+  aportesMes: AporteMetaDTO[] = [],
 ): ResumoPessoa[] {
+  // A meta é da família inteira, então o que foi guardado pesa em todos por
+  // igual — como acontece com uma conta compartilhada.
+  const aportePorPessoa =
+    pessoas.length > 0 ? somarAportes(aportesMes) / pessoas.length : 0;
+
   return pessoas.map((pessoa) => {
-    let gastos = 0;
+    let gastos = aportePorPessoa;
 
     for (const conta of fixasMes) {
       if (conta.tipo === "INDIVIDUAL") {
@@ -133,6 +154,8 @@ export type MetaCalculada = MetaDTO & {
   percentual: number;
   concluida: boolean;
   mesConclusao: string | null;
+  /** Quanto já foi guardado nesta meta dentro do mês em foco. */
+  aportadoNoMes: number;
 };
 
 /** Metas sem contribuição fixa dividem a sobra do mês entre si. */
@@ -140,6 +163,7 @@ export function calcularMetas(
   metas: MetaDTO[],
   sobra: number,
   mes: string,
+  aportesMes: AporteMetaDTO[] = [],
 ): MetaCalculada[] {
   const sobraPositiva = Math.max(0, sobra);
 
@@ -171,6 +195,9 @@ export function calcularMetas(
       concluida: meta.valorAtual >= meta.valorAlvo,
       mesConclusao:
         mesesRestantes === null ? null : adicionarMeses(mes, mesesRestantes),
+      aportadoNoMes: somarAportes(
+        aportesMes.filter((aporte) => aporte.metaId === meta.id),
+      ),
     };
   });
 }
@@ -178,8 +205,15 @@ export function calcularMetas(
 export function calcularPorCategoria(
   fixasMes: ContaFixaDTO[],
   variaveisMes: ContaVariavelDTO[],
+  aportesMes: AporteMetaDTO[] = [],
 ) {
   const acumulado = new Map<string, number>();
+
+  const totalAportes = somarAportes(aportesMes);
+
+  if (totalAportes > 0) {
+    acumulado.set("Metas", totalAportes);
+  }
 
   for (const conta of fixasMes) {
     const categoria = conta.categoria || "Outros";

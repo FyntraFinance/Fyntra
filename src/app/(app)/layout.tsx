@@ -10,9 +10,11 @@ import {
   calcularTotais,
 } from "@/lib/calculos";
 import {
+  aportesDoMes,
   contasFixasDoMes,
   contasVariaveisDoMes,
   ganhosExtrasDoMes,
+  listarAportes,
   listarContasFixas,
   listarContasVariaveis,
   listarEventos,
@@ -41,6 +43,7 @@ export default async function AppLayout({
     todasVariaveis,
     todosGanhos,
     metas,
+    todosAportes,
     eventos,
     statusGastos,
     configuracao,
@@ -50,6 +53,7 @@ export default async function AppLayout({
     listarContasVariaveis(contexto.workspaceId),
     listarGanhosExtras(contexto.workspaceId),
     listarMetas(contexto.workspaceId),
+    listarAportes(contexto.workspaceId),
     listarEventos(contexto.workspaceId),
     listarStatusGastos(contexto.workspaceId, mes),
     obterConfiguracao(contexto.workspaceId),
@@ -58,18 +62,26 @@ export default async function AppLayout({
   const fixasMes = contasFixasDoMes(todasFixas, mes);
   const variaveisMes = contasVariaveisDoMes(todasVariaveis, mes);
   const ganhosMes = ganhosExtrasDoMes(todosGanhos, mes);
+  const aportesMes = aportesDoMes(todosAportes, mes);
 
-  const totais = calcularTotais(pessoas, fixasMes, variaveisMes, ganhosMes);
+  const totais = calcularTotais(
+    pessoas,
+    fixasMes,
+    variaveisMes,
+    ganhosMes,
+    aportesMes,
+  );
 
   const resumoPessoas = calcularResumoPessoas(
     pessoas,
     fixasMes,
     variaveisMes,
     ganhosMes,
+    aportesMes,
   );
 
-  const metasCalculadas = calcularMetas(metas, totais.sobra, mes);
-  const porCategoria = calcularPorCategoria(fixasMes, variaveisMes);
+  const metasCalculadas = calcularMetas(metas, totais.sobra, mes, aportesMes);
+  const porCategoria = calcularPorCategoria(fixasMes, variaveisMes, aportesMes);
 
   const evolucaoAnual = calcularEvolucaoAnual(
     mes.split("-")[0],
@@ -84,6 +96,7 @@ export default async function AppLayout({
     { nome: "Extras", valor: totais.totalGanhosExtras, cor: "#22c55e" },
     { nome: "Fixas", valor: totais.totalFixas, cor: "#3b82f6" },
     { nome: "Variáveis", valor: totais.totalVariaveis, cor: "#8b5cf6" },
+    { nome: "Metas", valor: totais.totalAportes, cor: "#f59e0b" },
     { nome: "Sobra", valor: Math.max(0, totais.sobra), cor: "#06b6d4" },
   ];
 
@@ -124,6 +137,7 @@ export default async function AppLayout({
             dadosResumo,
             movimentacoes,
             mes,
+            aportesMes,
           },
           pessoas: { pessoas, podeConvidar: podeAdministrar(contexto.role) },
           contasFixas: {

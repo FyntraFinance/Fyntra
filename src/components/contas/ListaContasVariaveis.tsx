@@ -9,9 +9,18 @@ import { useToast } from "@/components/ui/Toast";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   CATEGORIAS_VARIAVEIS,
+  FORMAS_PAGAMENTO,
   type ContaVariavelDTO,
+  type FormaPagamento,
   type PessoaDTO,
 } from "@/lib/tipos";
+
+const ROTULO_FORMA: Record<FormaPagamento, string> = {
+  CARTAO: "💳 Cartão",
+  PIX: "⚡ Pix",
+  DINHEIRO: "💵 Dinheiro",
+  BOLETO: "🧾 Boleto",
+};
 
 function hojeISO() {
   return new Date().toISOString().slice(0, 10);
@@ -42,6 +51,8 @@ export function ListaContasVariaveis({
   const [pessoaId, setPessoaId] = useState("");
   const [data, setData] = useState(hojeISO());
   const [parcelas, setParcelas] = useState("1");
+  const [formaPagamento, setFormaPagamento] =
+    useState<FormaPagamento>("CARTAO");
   const [observacao, setObservacao] = useState("");
 
   function abrirForm(conta: ContaVariavelDTO | null) {
@@ -52,6 +63,7 @@ export function ListaContasVariaveis({
     setPessoaId(conta?.pessoaId ?? "");
     setData(conta?.data ?? hojeISO());
     setParcelas(String(conta?.parcelas ?? 1));
+    setFormaPagamento(conta?.formaPagamento ?? "CARTAO");
     setObservacao(conta?.observacao ?? "");
     setFormAberto(true);
   }
@@ -66,6 +78,7 @@ export function ListaContasVariaveis({
         pessoaId,
         data,
         parcelas: parcelas || 1,
+        formaPagamento,
         observacao,
       });
 
@@ -127,6 +140,9 @@ export function ListaContasVariaveis({
                     <div className="list-title">{conta.nome}</div>
 
                     <div className="list-sub">
+                      <span className={`forma-tag forma-${conta.formaPagamento.toLowerCase()}`}>
+                        {ROTULO_FORMA[conta.formaPagamento]}
+                      </span>
                       <span>{conta.categoria}</span>
                       <span>•</span>
                       <span>{pessoa?.nome ?? "—"}</span>
@@ -273,6 +289,32 @@ export function ListaContasVariaveis({
           </div>
 
           <div>
+            <label className="form-label">Forma de pagamento</label>
+
+            <div className="forma-opcoes">
+              {FORMAS_PAGAMENTO.map((forma) => (
+                <button
+                  key={forma.valor}
+                  type="button"
+                  className={`forma-opcao${
+                    formaPagamento === forma.valor ? " selecionada" : ""
+                  }`}
+                  onClick={() => {
+                    setFormaPagamento(forma.valor);
+
+                    // Pix, dinheiro e boleto saem de uma vez.
+                    if (forma.valor !== "CARTAO") {
+                      setParcelas("1");
+                    }
+                  }}
+                >
+                  {forma.rotulo}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <label className="form-label">Data</label>
 
             <input
@@ -283,17 +325,26 @@ export function ListaContasVariaveis({
             />
           </div>
 
-          <div>
-            <label className="form-label">Parcelas</label>
+          {formaPagamento === "CARTAO" ? (
+            <div>
+              <label className="form-label">Parcelas</label>
 
-            <input
-              className="input"
-              type="number"
-              min="1"
-              value={parcelas}
-              onChange={(evento) => setParcelas(evento.target.value)}
-            />
-          </div>
+              <input
+                className="input"
+                type="number"
+                min="1"
+                value={parcelas}
+                onChange={(evento) => setParcelas(evento.target.value)}
+              />
+
+              {Number(parcelas) > 1 && Number(valorTotal) > 0 ? (
+                <div className="text-muted text-xs" style={{ marginTop: 6 }}>
+                  {parcelas}x de{" "}
+                  {formatarMoeda(Number(valorTotal) / Number(parcelas))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div>
             <label className="form-label">Observação</label>

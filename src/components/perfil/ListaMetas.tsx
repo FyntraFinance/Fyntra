@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { registrarAporte } from "@/actions/aportes";
 import { removerMeta, salvarMeta } from "@/actions/metas";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
@@ -19,6 +20,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
   const [removendo, setRemovendo] = useState<MetaDTO | null>(null);
   const [aportando, setAportando] = useState<MetaDTO | null>(null);
   const [aporte, setAporte] = useState("");
+  const [dataAporte, setDataAporte] = useState("");
 
   const [nome, setNome] = useState("");
   const [emoji, setEmoji] = useState("");
@@ -75,35 +77,32 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
   function abrirAporte(meta: MetaDTO) {
     setAportando(meta);
     setAporte("");
+    setDataAporte(new Date().toISOString().slice(0, 10));
   }
 
-  /** Aporte manual: soma o valor informado ao que já está guardado. */
+  /**
+   * Registra o valor guardado. O aporte entra na meta e sai do saldo do mês
+   * da data informada — é a mesma operação do botão Guardar no dashboard.
+   */
   function confirmarAporte() {
     if (!aportando) return;
 
     const valor = Number(aporte);
 
-    if (!valor) {
+    if (valor <= 0) {
       mostrarToast("Informe o valor guardado agora.", "error");
 
       return;
     }
 
     iniciar(async () => {
-      const resultado = await salvarMeta({
-        id: aportando.id,
-        nome: aportando.nome,
-        emoji: aportando.emoji,
-        valorAlvo: aportando.valorAlvo,
-        valorAtual: Math.max(0, aportando.valorAtual + valor),
-        contribuicaoMensal: aportando.contribuicaoMensal,
-        cor: aportando.cor,
+      const resultado = await registrarAporte({
+        metaId: aportando.id,
+        valor,
+        data: dataAporte,
       });
 
-      mostrarToast(
-        resultado.ok ? "Valor guardado atualizado!" : resultado.mensagem,
-        resultado.ok ? "success" : "error",
-      );
+      mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
 
       if (resultado.ok) {
         setAportando(null);
@@ -442,7 +441,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
               onClick={confirmarAporte}
               disabled={pendente}
             >
-              {pendente ? "Salvando..." : "Somar ao guardado"}
+              {pendente ? "Guardando..." : "Guardar"}
             </button>
           </>
         }
@@ -454,21 +453,34 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
           </p>
 
           <div>
-            <label className="form-label">
-              Valor guardado agora (R$){" "}
-              <span className="text-muted text-xs">
-                — use negativo para corrigir para menos
-              </span>
-            </label>
+            <label className="form-label">Valor guardado agora (R$)</label>
 
             <input
               className="input"
               type="number"
+              min="0"
               step="0.01"
               placeholder="Ex: 200"
               value={aporte}
               onChange={(evento) => setAporte(evento.target.value)}
             />
+          </div>
+
+          <div>
+            <label className="form-label">Data</label>
+
+            <input
+              className="input"
+              type="date"
+              value={dataAporte}
+              onChange={(evento) => setDataAporte(evento.target.value)}
+            />
+          </div>
+
+          <div className="aporte-aviso">
+            <strong>O valor sai do saldo do mês da data informada.</strong>{" "}
+            Guardar dinheiro conta como uma saída, do mesmo jeito que uma conta
+            paga — e entra no total da meta.
           </div>
         </div>
       </Modal>

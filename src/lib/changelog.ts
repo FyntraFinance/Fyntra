@@ -21,6 +21,18 @@ export type EntradaChangelog = {
 export const CHANGELOG: EntradaChangelog[] = [
   {
     data: "2026-08-18",
+    titulo: "Guardar em metas, formas de pagamento e visual renovado",
+    itens: [
+      "No dashboard, cada meta agora tem o botão Guardar. O valor informado entra na meta e sai do saldo do mês — guardar dinheiro passou a contar como uma saída, igual a uma conta paga.",
+      "O cartão Guardado em Metas mostra quanto você separou no mês, e cada meta mostra quanto recebeu.",
+      "Errou o valor? Dá para desfazer um aporte pela mesma tela, e o dinheiro volta para a sobra do mês.",
+      "Nas contas variáveis você escolhe a forma de pagamento: cartão, Pix, dinheiro ou boleto. O parcelamento aparece só no cartão, e a lista mostra um selo colorido para identificar cada forma de relance.",
+      "O seletor de mês foi refeito: mês e ano lado a lado, setas mais discretas e um atalho para voltar ao mês atual.",
+      "As telas de entrada e a barra lateral agora exibem a logo do Fyntra no lugar do ícone genérico.",
+    ],
+  },
+  {
+    data: "2026-08-18",
     titulo: "Visual mais legível e consistente em todo o app",
     itens: [
       "O app passou a usar a fonte Inter de verdade: os textos, números e botões ficaram mais nítidos e alinhados.",
