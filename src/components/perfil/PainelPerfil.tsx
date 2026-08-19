@@ -333,7 +333,7 @@ export function PainelPerfil({
             className="perfil-card-icon"
             style={{
               background: "rgba(239,68,68,.15)",
-              color: "var(--danger)",
+              color: "var(--texto-negativo)",
             }}
           >
             🗑️
@@ -436,7 +436,7 @@ export function PainelPerfil({
                   type="button"
                   style={{
                     borderColor: "var(--danger)",
-                    color: "var(--danger)",
+                    color: "var(--texto-negativo)",
                   }}
                   onClick={() => setConfirmandoLimparToken(true)}
                 >
@@ -477,7 +477,7 @@ export function PainelPerfil({
         <div className="space-y-4">
           <p className="text-muted">
             Os dados atuais serão{" "}
-            <strong style={{ color: "var(--danger)" }}>substituídos</strong>.
+            <strong style={{ color: "var(--texto-negativo)" }}>substituídos</strong>.
             Deseja continuar?
           </p>
 
@@ -556,7 +556,7 @@ export function PainelPerfil({
         <div className="space-y-4">
           <p className="text-muted">
             Você está prestes a apagar{" "}
-            <strong style={{ color: "var(--danger)" }}>todos os dados</strong>{" "}
+            <strong style={{ color: "var(--texto-negativo)" }}>todos os dados</strong>{" "}
             deste workspace:
           </p>
 

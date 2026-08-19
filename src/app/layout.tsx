@@ -1,6 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 
 import "./globals.css";
+
+/**
+ * A folha de estilo sempre pediu Inter, mas a fonte nunca era baixada: o app
+ * caía na sans-serif padrão do navegador. Servida pelo next/font ela vem do
+ * mesmo domínio, sem requisição externa e sem troca de fonte na tela.
+ */
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--fonte",
+});
 
 export const metadata: Metadata = {
   title: "Fyntra — Controle financeiro da família",
@@ -48,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={inter.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREPARAR_INSTALACAO }} />
       </head>

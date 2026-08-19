@@ -156,7 +156,7 @@ export function ListaContasVariaveis({
                       {formatarMoeda(conta.valorParcela)}
                     </div>
 
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs texto-suave">
                       Total: {formatarMoeda(conta.valorTotal)}
                     </div>
 

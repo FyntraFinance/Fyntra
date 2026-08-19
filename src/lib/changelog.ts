@@ -21,6 +21,18 @@ export type EntradaChangelog = {
 export const CHANGELOG: EntradaChangelog[] = [
   {
     data: "2026-08-18",
+    titulo: "Visual mais legível e consistente em todo o app",
+    itens: [
+      "O app passou a usar a fonte Inter de verdade: os textos, números e botões ficaram mais nítidos e alinhados.",
+      "No tema claro, valores como a sobra, os gastos e o item de menu selecionado estavam muito claros para ler. Todas as cores foram ajustadas para ter contraste adequado nos dois temas.",
+      "Valores em dinheiro agora usam dígitos de largura fixa: as colunas de valores param de dançar de uma linha para a outra.",
+      "Botões, campos e menus ganharam tamanho, cantos e espaçamento padronizados.",
+      "Quem navega pelo teclado agora enxerga onde está: todo botão, campo e link mostra um contorno ao receber o foco.",
+      "No celular, os botões de editar e remover voltaram ao tamanho confortável para o toque.",
+    ],
+  },
+  {
+    data: "2026-08-18",
     titulo: "Central de Ajuda com as novidades do app",
     itens: [
       "Botão de ajuda no canto inferior direito, disponível em qualquer tela.",

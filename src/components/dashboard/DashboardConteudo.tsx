@@ -120,7 +120,7 @@ export function DashboardConteudo({
                 <div className="meta-dash-top">
                   <div
                     className="meta-dash-emoji"
-                    style={{ background: `${meta.cor}22`, color: meta.cor }}
+                    style={{ background: `${meta.cor}22` }}
                   >
                     {meta.emoji}
                   </div>
@@ -129,7 +129,9 @@ export function DashboardConteudo({
                     <div className="meta-dash-nome">{meta.nome}</div>
 
                     <div className="meta-dash-valores">
-                      <span style={{ color: meta.cor, fontWeight: 700 }}>
+                      {/* A cor da meta identifica a meta na barra e no ícone;
+                          no texto ela varia demais para garantir leitura. */}
+                      <span style={{ fontWeight: 700 }}>
                         {formatarMoeda(meta.valorAtual)}
                       </span>
 
@@ -140,9 +142,7 @@ export function DashboardConteudo({
                     </div>
                   </div>
 
-                  <div className="meta-dash-pct" style={{ color: meta.cor }}>
-                    {meta.percentual}%
-                  </div>
+                  <div className="meta-dash-pct">{meta.percentual}%</div>
                 </div>
 
                 <div className="meta-dash-track">
@@ -206,7 +206,7 @@ export function DashboardConteudo({
 
         <div className="person-cards">
           {resumoPessoas.length === 0 ? (
-            <div className="text-slate-400">Nenhuma pessoa cadastrada.</div>
+            <div className="texto-suave">Nenhuma pessoa cadastrada.</div>
           ) : (
             resumoPessoas.map((pessoa, indice) => (
               <div className="card" key={pessoa.id}>
@@ -221,7 +221,7 @@ export function DashboardConteudo({
                   <div>
                     <div className="font-bold">{pessoa.nome}</div>
 
-                    <div className="text-sm text-slate-400">
+                    <div className="text-sm texto-suave">
                       {formatarMoeda(pessoa.salario)}
                     </div>
                   </div>
@@ -232,7 +232,7 @@ export function DashboardConteudo({
                     <div className="flex-between">
                       <span>Ganhos extras</span>
 
-                      <strong className="text-emerald-400">
+                      <strong className="valor-positivo">
                         + {formatarMoeda(pessoa.ganhosExtras)}
                       </strong>
                     </div>
@@ -241,7 +241,7 @@ export function DashboardConteudo({
                   <div className="flex-between">
                     <span>Gastos</span>
 
-                    <strong className="text-red-400">
+                    <strong className="valor-negativo">
                       {formatarMoeda(pessoa.gastos)}
                     </strong>
                   </div>
@@ -251,7 +251,7 @@ export function DashboardConteudo({
 
                     <strong
                       className={
-                        pessoa.sobra < 0 ? "text-red-400" : "text-emerald-400"
+                        pessoa.sobra < 0 ? "valor-negativo" : "valor-positivo"
                       }
                     >
                       {formatarMoeda(pessoa.sobra)}
@@ -280,7 +280,7 @@ export function DashboardConteudo({
           </div>
 
           {movimentacoes.length === 0 ? (
-            <div className="text-slate-400">Nenhuma conta encontrada.</div>
+            <div className="texto-suave">Nenhuma conta encontrada.</div>
           ) : (
             movimentacoes.map((conta) => (
               <div
@@ -290,7 +290,7 @@ export function DashboardConteudo({
                 <div>
                   <div className="font-semibold">{conta.nome}</div>
 
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs texto-suave">
                     {conta.categoria || "Outros"}
                   </div>
 
@@ -304,7 +304,7 @@ export function DashboardConteudo({
                   </div>
                 </div>
 
-                <strong className="text-red-400">
+                <strong className="valor-negativo">
                   {formatarMoeda(conta.valor)}
                 </strong>
               </div>

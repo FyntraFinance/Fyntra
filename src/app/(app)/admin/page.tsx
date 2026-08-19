@@ -48,7 +48,7 @@ export default async function AdminPage({
 
         <div className="membros-lista">
           {familias.length === 0 ? (
-            <div className="text-slate-400">Nenhuma família encontrada.</div>
+            <div className="texto-suave">Nenhuma família encontrada.</div>
           ) : (
             familias.map((familia) => (
               <Link

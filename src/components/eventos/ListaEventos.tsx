@@ -261,7 +261,7 @@ export function ListaEventos({
                       {formatarMoeda(evento.total)}
                     </div>
 
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs texto-suave">
                       {formatarMoeda(evento.cotaPorParticipante)} por pessoa
                     </div>
                   </div>

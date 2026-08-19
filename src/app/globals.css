@@ -22,6 +22,28 @@
     --purple: #8b5cf6;
     --blue: #3b82f6;
 
+    /* Cores de TEXTO com significado. Separadas das cores de marca acima
+       porque texto precisa de contraste contra o fundo, e o fundo muda entre
+       os temas: o verde que brilha no escuro some no branco. Cada tema define
+       o tom que passa em AA sem perder a identidade. */
+    --texto-positivo: #34d399;
+    --texto-negativo: #f87171;
+    --texto-aviso: #fbbf24;
+    --texto-info: #60a5fa;
+    --texto-marca: #34d399;
+
+    /* Terceiro nível de texto: menos que --text-2, ainda legível. */
+    --text-3: #94a3b8;
+
+    /* Pilha tipográfica. --fonte vem do next/font (Inter) no <html>; os
+       fallbacks cobrem o intervalo até a fonte carregar. */
+    --fonte-sans:
+        var(--fonte),
+        "Segoe UI",
+        system-ui,
+        -apple-system,
+        sans-serif;
+
     --radius: 18px;
 
     /* Sobreposições neutras usadas em bordas, hovers e fundos sutis por todo
@@ -49,9 +71,12 @@
     --surface-90: rgba(15,23,42,.90);
     --surface-95: rgba(15,23,42,.95);
 
+    /* Sombra em duas camadas: um contorno curto que assenta o card na
+       superfície e uma difusa fraca que dá profundidade. A sombra única e
+       larga de antes pesava a tela inteira, já que todo card a usa. */
     --shadow:
-        0 10px 30px
-        var(--blk-30);
+        0 1px 2px var(--blk-30),
+        0 8px 24px -12px var(--blk-35);
 
     color-scheme: dark;
 }
@@ -72,6 +97,15 @@
 
         --text-1: #0f172a;
         --text-2: #5b6472;
+        --text-3: #64748b;
+
+        /* Mesmas cores, tons fechados: sobre branco os tons claros do tema
+           escuro ficavam em 1.7:1 — abaixo de qualquer mínimo legível. */
+        --texto-positivo: #047857;
+        --texto-negativo: #b91c1c;
+        --texto-aviso: #b45309;
+        --texto-info: #1d4ed8;
+        --texto-marca: #047857;
 
         --wht-02: rgba(15,23,42,.03);
         --wht-03: rgba(15,23,42,.04);
@@ -120,10 +154,40 @@ body {
         var(--text-1);
 
     font-family:
-        Inter,
-        sans-serif;
+        var(--fonte-sans);
+
+    /* A Inter tem altura-x grande: sem isto o texto fica apertado. */
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
 
     overflow: hidden;
+}
+
+/* Controles de formulário não herdam tipografia por padrão — sem isto,
+   botões e campos continuariam na fonte do navegador enquanto o resto da
+   interface usa a Inter. */
+button,
+input,
+select,
+textarea {
+
+    font: inherit;
+
+    color: inherit;
+}
+
+/* Valores em dinheiro: dígitos de mesma largura mantêm as colunas de
+   valores alinhadas de uma linha para a outra. */
+.metric-value,
+.list-amount,
+.month-label,
+.meta-stat-val,
+.meta-dash-valores,
+.perfil-meta-valores,
+.membro-role {
+
+    font-variant-numeric: tabular-nums;
 }
 
 body {
@@ -248,7 +312,7 @@ body {
 .brand-text span {
 
     color:
-        var(--accent);
+        var(--texto-marca);
 }
 
 .sidebar-section {
@@ -283,18 +347,21 @@ body {
     color:
         var(--text-2);
 
-    padding: 14px 18px;
+    padding: 11px 14px;
 
-    border-radius:
-        var(--radius);
+    /* O raio do card (18px) deixava o item de menu com cara de balão; um
+       raio menor acompanha melhor a altura da linha. */
+    border-radius: 12px;
+
+    font-size: 14px;
 
     text-align: left;
 
     cursor: pointer;
 
-    transition: .2s;
-
-    font-size: 15px;
+    transition:
+        background-color .15s ease,
+        color .15s ease;
 }
 
 .nav-item:hover {
@@ -312,9 +379,9 @@ body {
         rgba(16,185,129,.15);
 
     color:
-        var(--accent);
+        var(--texto-marca);
 
-    font-weight: 700;
+    font-weight: 600;
 }
 
 /* MAIN */
@@ -362,12 +429,24 @@ body {
     padding: 24px;
 }
 
+/* Foco visível para quem navega pelo teclado. `:focus-visible` só aparece
+   na navegação por teclado, então o clique de mouse continua limpo. O anel
+   fica fora do elemento para não competir com a borda dele. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+
+    outline: 2px solid var(--accent);
+
+    outline-offset: 2px;
+
+    border-radius: 6px;
+}
+
 /* CARDS */
 
 .card {
 
     background:
-        var(--surface-75);
+        var(--bg-1);
 
     border:
         1px solid var(--border);
@@ -381,11 +460,20 @@ body {
         var(--shadow);
 }
 
-.card-title{
-    margin: 10px 0px;
-    font-size: large;
+/* Título de seção dentro de um card. Antes usava a palavra-chave `large`,
+   que ficava fora da escala do resto da interface. */
+.card-title {
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    letter-spacing: -.01em;
 }
 
+/* Grades da interface usam o mesmo respiro de 16px. Antes cada grade tinha
+   o seu (18px aqui, 20px ali), o que fazia as seções da mesma página
+   parecerem desencaixadas. */
 .metrics-grid {
 
     display: grid;
@@ -396,7 +484,7 @@ body {
             minmax(220px,1fr)
         );
 
-    gap: 18px;
+    gap: 16px;
 }
 
 .metric-card {
@@ -460,9 +548,15 @@ body {
 
 .metric-value {
 
-    font-size: 30px;
+    font-size: 28px;
 
-    font-weight: 800;
+    font-weight: 700;
+
+    /* Números grandes na Inter respiram melhor com o texto um pouco mais
+       fechado e sem o espaçamento de linha do corpo. */
+    letter-spacing: -.02em;
+
+    line-height: 1.2;
 }
 
 /* GRID */
@@ -474,7 +568,7 @@ body {
     grid-template-columns:
         1fr 1fr;
 
-    gap: 20px;
+    gap: 16px;
 }
 
 /* CHART */
@@ -498,7 +592,7 @@ body {
             minmax(280px,1fr)
         );
 
-    gap: 18px;
+    gap: 16px;
 }
 
 .person-avatar {
@@ -563,9 +657,11 @@ body {
 
 .list-title {
 
-    font-size: 18px;
+    font-size: 16px;
 
-    font-weight: 700;
+    font-weight: 600;
+
+    letter-spacing: -.01em;
 }
 
 .list-sub {
@@ -586,9 +682,11 @@ body {
 
 .list-amount {
 
-    font-size: 22px;
+    font-size: 20px;
 
-    font-weight: 800;
+    font-weight: 700;
+
+    letter-spacing: -.01em;
 }
 
 .list-actions {
@@ -600,8 +698,8 @@ body {
 
 .btn-icon {
 
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
 
     border-radius: 12px;
 
@@ -625,33 +723,74 @@ body {
 
 .btn {
 
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
     border: none;
 
     cursor: pointer;
 
-    border-radius:
-        var(--radius);
+    border-radius: 12px;
 
     padding:
-        12px 18px;
+        11px 18px;
 
-    font-weight: 700;
+    /* Sem tamanho próprio o botão herdava os 16px do corpo do texto, que
+       em peso 700 ficava maior que os títulos das listas. */
+    font-size: 14px;
 
-    transition: .2s;
+    font-weight: 600;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    transition:
+        background-color .15s ease,
+        transform .15s ease,
+        filter .15s ease;
 }
 
+/* Texto escuro sobre o verde da marca. Branco sobre este verde dava 1.13:1,
+   ou seja, o rótulo do botão principal do app era o texto menos legível da
+   tela; escurecer o verde apagaria a identidade, então inverte-se o texto. */
 .btn-primary {
 
     background:
         var(--accent);
 
-    color: white;
+    color: #0f172a;
 }
 
 .btn-primary:hover {
 
+    filter: brightness(1.06);
+
     transform:
-        translateY(-2px);
+        translateY(-1px);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active {
+
+    transform: translateY(0);
+}
+
+.btn-secondary:hover {
+
+    background:
+        var(--wht-08);
+}
+
+.btn-danger:hover {
+
+    filter: brightness(1.06);
 }
 
 .btn-secondary {
@@ -668,7 +807,7 @@ body {
     background:
         var(--danger);
 
-    color: white;
+    color: #ffffff;
 }
 
 /* INPUTS */
@@ -679,29 +818,42 @@ body {
 
     border:
         1px solid
-        var(--wht-08);
+        var(--wht-12);
 
     background:
-        var(--wht-04);
+        var(--wht-03);
 
     color:
         var(--text-1);
 
-    border-radius:
-        var(--radius);
+    /* Mesmo raio dos botões: campo e botão aparecem lado a lado nos
+       formulários e antes tinham cantos diferentes. */
+    border-radius: 12px;
 
     padding:
-        14px 16px;
+        11px 14px;
+
+    font-size: 14px;
 
     outline: none;
 
     color-scheme: dark;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
 }
 
+/* O campo em foco ganha halo além da borda: só a troca de cor da borda era
+   discreta demais para sinalizar onde o cursor está. */
 .input:focus {
 
     border-color:
         var(--accent);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(16,185,129,.18);
 }
 
 select.input option {
@@ -1447,7 +1599,7 @@ select.input option {
 
     font-weight: 700;
 
-    color: #10b981;
+    color: var(--texto-marca);
 }
 
 .ai-msg-markdown em {
@@ -1542,10 +1694,14 @@ select.input option {
         font-size: 16px;
     }
 
+    /* No celular a área de toque não pode encolher: 44px é o mínimo
+       confortável para o dedo. Encolhe o ícone, não o alvo. */
     .btn-icon {
 
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
+
+        font-size: 15px;
     }
 
     .modal-box {
@@ -1837,6 +1993,8 @@ select.input option {
     font-size: 22px;
 
     font-weight: 700;
+
+    letter-spacing: -.02em;
 }
 
 .perfil-grid {
@@ -1849,7 +2007,7 @@ select.input option {
             minmax(300px, 1fr)
         );
 
-    gap: 20px;
+    gap: 16px;
 }
 
 .perfil-card {
@@ -1950,7 +2108,7 @@ select.input option {
 
     background: rgba(16,185,129,.12);
 
-    color: var(--accent);
+    color: var(--texto-marca);
 
     border: 1px solid rgba(16,185,129,.25);
 }
@@ -2075,14 +2233,14 @@ select.input option {
 
     background: rgba(16,185,129,.12);
 
-    color: var(--accent);
+    color: var(--texto-marca);
 }
 
 .perfil-status.warn {
 
     background: rgba(239,68,68,.10);
 
-    color: var(--danger);
+    color: var(--texto-negativo);
 }
 
 /* SWITCH */
@@ -2260,7 +2418,7 @@ select.input option {
 
     border: 1px solid rgba(239,68,68,.4);
 
-    color: var(--danger);
+    color: var(--texto-negativo);
 
     transition: background .15s, border-color .15s;
 }
@@ -2631,6 +2789,9 @@ select.input option {
 
 .meta-dash-pct {
 
+    color:
+        var(--text-1);
+
     font-size: 22px;
 
     font-weight: 800;
@@ -2712,7 +2873,7 @@ select.input option {
 
     background: rgba(245,158,11,.15);
 
-    color: #f59e0b;
+    color: var(--texto-aviso);
 
     font-weight: 500;
 }
@@ -2728,7 +2889,10 @@ select.input option {
    RESPONSIVE — METAS
    ============================= */
 
-@media (max-width: 640px) {
+/* O app tem dois pontos de quebra: 900px (some a barra lateral) e 600px
+   (telefone). Blocos que usavam 520/560/640 viravam um terceiro e um quarto
+   ponto, com trocas de layout em larguras que não correspondiam a nada. */
+@media (max-width: 600px) {
 
     .metas-grid {
 
@@ -2760,6 +2924,9 @@ select.input option {
     }
 
     .meta-dash-pct {
+
+    color:
+        var(--text-1);
 
         font-size: 18px;
     }
@@ -2929,7 +3096,7 @@ select.input option {
 
 .auth-link {
 
-    color: var(--accent);
+    color: var(--texto-marca);
 
     text-decoration: none;
 
@@ -3060,7 +3227,7 @@ select.input option {
 
 .sidebar-sair:hover {
 
-    color: var(--danger);
+    color: var(--texto-negativo);
 
     background: rgba(239,68,68,.10);
 }
@@ -3105,14 +3272,14 @@ select.input option {
 
     background: rgba(245,158,11,.15);
 
-    color: #fbbf24;
+    color: var(--texto-aviso);
 }
 
 .convite-badge.ativo {
 
     background: rgba(16,185,129,.15);
 
-    color: #34d399;
+    color: var(--texto-positivo);
 }
 
 .convite-link-box {
@@ -3206,7 +3373,7 @@ select.input option {
 
 .admin-familia-link .membro-role {
 
-    color: var(--accent);
+    color: var(--texto-marca);
 }
 
 /* ASSISTENTE: indicador de digitação e contas detectadas.
@@ -3299,7 +3466,7 @@ select.input option {
 
     font-weight: 700;
 
-    color: var(--accent);
+    color: var(--texto-marca);
 }
 
 /* O botão de configuração do chat virou um link para o Perfil. */
@@ -3647,9 +3814,13 @@ a.btn-token-config {
 .font-semibold { font-weight: 600; }
 .font-bold { font-weight: 700; }
 .text-slate-300 { color: #cbd5e1; }
-.text-slate-400 { color: var(--text-2); }
-.text-red-400 { color: #f87171; }
-.text-emerald-400 { color: #34d399; }
+/* Cores com significado. Substituem as utilitárias de cor fixa do Tailwind
+   (text-emerald-400 e afins), que traziam um tom pensado só para o tema
+   escuro e ficavam ilegíveis no claro. */
+.valor-positivo { color: var(--texto-positivo); }
+.valor-negativo { color: var(--texto-negativo); }
+.texto-suave { color: var(--text-3); }
+.texto-secundario { color: var(--text-2); }
 .border-b { border-bottom: 1px solid var(--border); }
 
 .space-y-2 > * + * { margin-top: 8px; }
@@ -3737,7 +3908,7 @@ a.btn-token-config {
 
     border-color: rgba(16,185,129,.35);
 
-    color: #34d399;
+    color: var(--texto-positivo);
 }
 
 .status-badge.andamento {
@@ -3746,7 +3917,7 @@ a.btn-token-config {
 
     border-color: rgba(245,158,11,.35);
 
-    color: #fbbf24;
+    color: var(--texto-aviso);
 }
 
 /* ==========================================================================
@@ -3916,7 +4087,7 @@ a.btn-token-config {
 
 .evento-chip button:hover {
 
-    color: var(--danger);
+    color: var(--texto-negativo);
 }
 
 .evento-btn-add {
@@ -3963,7 +4134,7 @@ a.btn-token-config {
 
     border-color: var(--danger);
 
-    color: var(--danger);
+    color: var(--texto-negativo);
 }
 
 .evento-emoji-chip {
@@ -4033,7 +4204,7 @@ a.btn-token-config {
     background: rgba(245,158,11,.12);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
 
     .meta-modo-opcoes {
 
@@ -4373,7 +4544,7 @@ a.btn-token-config {
 
     letter-spacing: .03em;
 
-    color: var(--accent);
+    color: var(--texto-marca);
 }
 
 .ajuda-item-titulo {
@@ -4436,7 +4607,7 @@ a.btn-token-config {
 
     left: 2px;
 
-    color: var(--accent);
+    color: var(--texto-marca);
 }
 
 /* O verde do tema escuro fica lavado sobre o branco: no tema claro a data e
@@ -4452,7 +4623,7 @@ a.btn-token-config {
 
 /* No celular o painel ocupa a tela toda de baixo para cima */
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
 
     .ajuda-botao {
 

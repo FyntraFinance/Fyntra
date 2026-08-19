@@ -258,7 +258,7 @@ export default async function RelatorioFamiliaPage({
 
         <div className="person-cards">
           {resumoPessoas.length === 0 ? (
-            <div className="text-slate-400">Nenhuma pessoa cadastrada.</div>
+            <div className="texto-suave">Nenhuma pessoa cadastrada.</div>
           ) : (
             resumoPessoas.map((pessoa) => (
               <div className="card" key={pessoa.id}>
@@ -273,7 +273,7 @@ export default async function RelatorioFamiliaPage({
                   {pessoa.ganhosExtras > 0 ? (
                     <div className="flex-between">
                       <span>Ganhos extras</span>
-                      <strong className="text-emerald-400">
+                      <strong className="valor-positivo">
                         + {formatarMoeda(pessoa.ganhosExtras)}
                       </strong>
                     </div>
@@ -281,14 +281,14 @@ export default async function RelatorioFamiliaPage({
 
                   <div className="flex-between">
                     <span>Gastos</span>
-                    <strong className="text-red-400">
+                    <strong className="valor-negativo">
                       {formatarMoeda(pessoa.gastos)}
                     </strong>
                   </div>
 
                   <div className="flex-between">
                     <span>Sobra</span>
-                    <strong className="text-emerald-400">
+                    <strong className="valor-positivo">
                       {formatarMoeda(pessoa.sobra)}
                     </strong>
                   </div>
@@ -340,7 +340,7 @@ export default async function RelatorioFamiliaPage({
         <div className="card">
           <div className="membros-lista">
             {todasFixasOrdenadas.length === 0 ? (
-              <div className="text-slate-400">
+              <div className="texto-suave">
                 Nenhuma conta fixa cadastrada nesta família.
               </div>
             ) : (
@@ -389,7 +389,7 @@ export default async function RelatorioFamiliaPage({
         <div className="card">
           <div className="membros-lista">
             {todasVariaveisOrdenadas.length === 0 ? (
-              <div className="text-slate-400">
+              <div className="texto-suave">
                 Nenhuma conta variável cadastrada nesta família.
               </div>
             ) : (
@@ -434,7 +434,7 @@ export default async function RelatorioFamiliaPage({
         <div className="card">
           <div className="membros-lista">
             {ganhosMes.length === 0 ? (
-              <div className="text-slate-400">
+              <div className="texto-suave">
                 Nenhum ganho extra lançado neste mês.
               </div>
             ) : (

@@ -113,7 +113,7 @@ export function ListaGanhos({
       <div className="page-actions">
         <div className="text-muted">
           Entradas fora do salário em {formatarMesAno(mes)} ·{" "}
-          <strong className="text-emerald-400">{formatarMoeda(total)}</strong>
+          <strong className="valor-positivo">{formatarMoeda(total)}</strong>
         </div>
 
         <button
@@ -191,7 +191,7 @@ export function ListaGanhos({
                   </div>
 
                   <div className="text-right">
-                    <div className="list-amount text-emerald-400">
+                    <div className="list-amount valor-positivo">
                       + {formatarMoeda(ganho.valor)}
                     </div>
 

@@ -104,7 +104,7 @@ export function ModalConfirmar({
       }
     >
       <div className="space-y-4">
-        <p className="text-slate-300">{mensagem}</p>
+        <p className="texto-secundario">{mensagem}</p>
       </div>
     </Modal>
   );

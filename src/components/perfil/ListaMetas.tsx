@@ -186,7 +186,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
                   <div className="perfil-meta-item-left">
                     <div
                       className="perfil-meta-emoji"
-                      style={{ background: `${meta.cor}22`, color: meta.cor }}
+                      style={{ background: `${meta.cor}22` }}
                     >
                       {meta.emoji}
                     </div>
@@ -205,7 +205,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
                       </div>
 
                       <div className="perfil-meta-valores">
-                        <span style={{ color: meta.cor, fontWeight: 600 }}>
+                        <span style={{ fontWeight: 600 }}>
                           {formatarMoeda(meta.valorAtual)}
                         </span>
 
@@ -251,7 +251,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
                         padding: "6px 12px",
                         fontSize: 13,
                         borderColor: "var(--danger)",
-                        color: "var(--danger)",
+                        color: "var(--texto-negativo)",
                       }}
                       onClick={() => setRemovendo(meta)}
                     >
