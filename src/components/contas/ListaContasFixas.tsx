@@ -6,7 +6,8 @@ import { removerContaFixa, salvarContaFixa } from "@/actions/contas";
 import { BotaoStatus } from "@/components/contas/BotaoStatus";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
-import { formatarMoeda } from "@/lib/format";
+import { diasAte, formatarMoeda, vencimentoNoMes } from "@/lib/format";
+import { SeloVencimento } from "@/components/contas/SeloVencimento";
 import {
   CATEGORIAS_FIXAS,
   type ContaFixaDTO,
@@ -44,6 +45,7 @@ export function ListaContasFixas({
   const [tipo, setTipo] = useState<TipoContaFixa>("COMPARTILHADA");
   const [pessoaId, setPessoaId] = useState("");
   const [dataInicio, setDataInicio] = useState(mes);
+  const [diaVencimento, setDiaVencimento] = useState("");
   const [observacao, setObservacao] = useState("");
 
   function abrirForm(conta: ContaFixaDTO | null) {
@@ -54,6 +56,7 @@ export function ListaContasFixas({
     setTipo(conta?.tipo ?? "COMPARTILHADA");
     setPessoaId(conta?.pessoaId ?? "");
     setDataInicio(conta?.dataInicio ?? mes);
+    setDiaVencimento(conta?.diaVencimento ? String(conta.diaVencimento) : "");
     setObservacao(conta?.observacao ?? "");
     setFormAberto(true);
   }
@@ -68,6 +71,7 @@ export function ListaContasFixas({
         tipo,
         pessoaId: tipo === "INDIVIDUAL" ? pessoaId : null,
         dataInicio,
+        diaVencimento: diaVencimento || null,
         observacao,
       });
 
@@ -141,13 +145,23 @@ export function ListaContasFixas({
                       ) : null}
                     </div>
 
-                    <div className="mt-8">
+                    <div className="conta-selos mt-8">
                       <BotaoStatus
                         tipo="FIXA"
                         contaId={conta.id}
                         mes={mes}
                         pago={pagas.includes(conta.id)}
                       />
+
+                      {conta.diaVencimento ? (
+                        <SeloVencimento
+                          dias={diasAte(
+                            vencimentoNoMes(mes, conta.diaVencimento),
+                          )}
+                          dia={conta.diaVencimento}
+                          pago={pagas.includes(conta.id)}
+                        />
+                      ) : null}
                     </div>
                   </div>
 
@@ -284,6 +298,25 @@ export function ListaContasFixas({
               </select>
             </div>
           ) : null}
+
+          <div>
+            <label className="form-label">
+              Dia do vencimento{" "}
+              <span className="text-muted text-xs">
+                — opcional, de 1 a 31
+              </span>
+            </label>
+
+            <input
+              className="input"
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Ex: 10"
+              value={diaVencimento}
+              onChange={(evento) => setDiaVencimento(evento.target.value)}
+            />
+          </div>
 
           <div>
             <label className="form-label">Mês inicial</label>

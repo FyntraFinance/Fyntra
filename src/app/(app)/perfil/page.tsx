@@ -1,8 +1,15 @@
+import { Notificacoes } from "@/components/perfil/Notificacoes";
 import { ListaMembros } from "@/components/perfil/ListaMembros";
 import { ListaMetas } from "@/components/perfil/ListaMetas";
 import { PainelPerfil } from "@/components/perfil/PainelPerfil";
+import { SeletorTema } from "@/components/perfil/SeletorTema";
 import { TrocarSenha } from "@/components/perfil/TrocarSenha";
-import { listarMembros, listarMetas, obterConfiguracao } from "@/lib/dados";
+import {
+  listarMembros,
+  listarMetas,
+  listarPessoas,
+  obterConfiguracao,
+} from "@/lib/dados";
 import { obterMesSelecionado } from "@/lib/mes";
 import { obterContexto, podeAdministrar } from "@/lib/workspace";
 
@@ -13,10 +20,11 @@ export const metadata = {
 export default async function PerfilPage() {
   const contexto = await obterContexto();
 
-  const [metas, configuracao, membros, mes] = await Promise.all([
+  const [metas, configuracao, membros, pessoas, mes] = await Promise.all([
     listarMetas(contexto.workspaceId),
     obterConfiguracao(contexto.workspaceId),
     listarMembros(contexto.workspaceId, contexto.userId),
+    listarPessoas(contexto.workspaceId),
     obterMesSelecionado(),
   ]);
 
@@ -37,6 +45,12 @@ export default async function PerfilPage() {
       />
 
       <div className="perfil-grid mt-16">
+        <SeletorTema />
+
+        <Notificacoes
+          chavePublica={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""}
+        />
+
         <TrocarSenha />
       </div>
 
@@ -45,7 +59,7 @@ export default async function PerfilPage() {
         podeAdministrar={podeAdministrar(contexto.role)}
       />
 
-      <ListaMetas metas={metas} />
+      <ListaMetas metas={metas} pessoas={pessoas} />
     </>
   );
 }

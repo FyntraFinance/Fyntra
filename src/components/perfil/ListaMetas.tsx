@@ -7,11 +7,17 @@ import { removerMeta, salvarMeta } from "@/actions/metas";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { CORES_META, formatarMoeda } from "@/lib/format";
-import type { MetaDTO } from "@/lib/tipos";
+import type { MetaDTO, PessoaDTO } from "@/lib/tipos";
 
 type ModoContribuicao = "AUTOMATICA" | "MANUAL";
 
-export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
+export function ListaMetas({
+  metas,
+  pessoas,
+}: {
+  metas: MetaDTO[];
+  pessoas: PessoaDTO[];
+}) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
 
@@ -21,6 +27,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
   const [aportando, setAportando] = useState<MetaDTO | null>(null);
   const [aporte, setAporte] = useState("");
   const [dataAporte, setDataAporte] = useState("");
+  const [pessoaAporte, setPessoaAporte] = useState("");
 
   const [nome, setNome] = useState("");
   const [emoji, setEmoji] = useState("");
@@ -78,6 +85,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
     setAportando(meta);
     setAporte("");
     setDataAporte(new Date().toISOString().slice(0, 10));
+    setPessoaAporte("");
   }
 
   /**
@@ -100,6 +108,7 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
         metaId: aportando.id,
         valor,
         data: dataAporte,
+        pessoaId: pessoaAporte || null,
       });
 
       mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
@@ -476,6 +485,26 @@ export function ListaMetas({ metas }: { metas: MetaDTO[] }) {
               onChange={(evento) => setDataAporte(evento.target.value)}
             />
           </div>
+
+          {pessoas.length > 0 ? (
+            <div>
+              <label className="form-label">Quem guardou</label>
+
+              <select
+                className="input"
+                value={pessoaAporte}
+                onChange={(evento) => setPessoaAporte(evento.target.value)}
+              >
+                <option value="">A família (dividido entre todos)</option>
+
+                {pessoas.map((pessoa) => (
+                  <option key={pessoa.id} value={pessoa.id}>
+                    {pessoa.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           <div className="aporte-aviso">
             <strong>O valor sai do saldo do mês da data informada.</strong>{" "}

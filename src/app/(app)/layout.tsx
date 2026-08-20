@@ -138,6 +138,7 @@ export default async function AppLayout({
             movimentacoes,
             mes,
             aportesMes,
+            pessoas,
           },
           pessoas: { pessoas, podeConvidar: podeAdministrar(contexto.role) },
           contasFixas: {

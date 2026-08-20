@@ -6,7 +6,7 @@ import { registrarAporte, removerAporte } from "@/actions/aportes";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { formatarData, formatarMesAno, formatarMoeda } from "@/lib/format";
-import type { AporteMetaDTO } from "@/lib/tipos";
+import type { AporteMetaDTO, PessoaDTO } from "@/lib/tipos";
 
 function hojeISO() {
   return new Date().toISOString().slice(0, 10);
@@ -31,6 +31,7 @@ export function GuardarNaMeta({
   mes,
   sobra,
   aportes,
+  pessoas,
 }: {
   metaId: string;
   nomeMeta: string;
@@ -40,6 +41,7 @@ export function GuardarNaMeta({
   sobra: number;
   /** Aportes já feitos nesta meta dentro do mês em foco. */
   aportes: AporteMetaDTO[];
+  pessoas: PessoaDTO[];
 }) {
   const mostrarToast = useToast();
   const [pendente, iniciar] = useTransition();
@@ -47,6 +49,7 @@ export function GuardarNaMeta({
   const [aberto, setAberto] = useState(false);
   const [valor, setValor] = useState("");
   const [data, setData] = useState(dataPadrao(mes));
+  const [pessoaId, setPessoaId] = useState("");
 
   const numero = Number(valor) || 0;
   const passaDaSobra = numero > 0 && numero > sobra;
@@ -54,12 +57,18 @@ export function GuardarNaMeta({
   function abrir() {
     setValor("");
     setData(dataPadrao(mes));
+    setPessoaId("");
     setAberto(true);
   }
 
   function salvar() {
     iniciar(async () => {
-      const resultado = await registrarAporte({ metaId, valor, data });
+      const resultado = await registrarAporte({
+        metaId,
+        valor,
+        data,
+        pessoaId: pessoaId || null,
+      });
 
       mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
 
@@ -140,6 +149,32 @@ export function GuardarNaMeta({
             />
           </div>
 
+          {pessoas.length > 0 ? (
+            <div>
+              <label className="form-label">Quem guardou</label>
+
+              <select
+                className="input"
+                value={pessoaId}
+                onChange={(evento) => setPessoaId(evento.target.value)}
+              >
+                <option value="">A família (dividido entre todos)</option>
+
+                {pessoas.map((pessoa) => (
+                  <option key={pessoa.id} value={pessoa.id}>
+                    {pessoa.nome}
+                  </option>
+                ))}
+              </select>
+
+              <div className="text-muted text-xs" style={{ marginTop: 6 }}>
+                {pessoaId
+                  ? "O valor entra só nos gastos dessa pessoa."
+                  : "O valor é dividido igualmente entre as pessoas da família."}
+              </div>
+            </div>
+          ) : null}
+
           <div className="aporte-aviso">
             <strong>Este valor sai do saldo de {formatarMesAno(mes)}.</strong>{" "}
             Guardar dinheiro conta como uma saída do mês, do mesmo jeito que uma
@@ -160,7 +195,16 @@ export function GuardarNaMeta({
               <div className="aporte-lista">
                 {aportes.map((aporte) => (
                   <div className="aporte-item" key={aporte.id}>
-                    <span>{formatarData(aporte.data)}</span>
+                    <span>
+                      {formatarData(aporte.data)}
+                      {aporte.pessoaId ? (
+                        <span className="texto-suave">
+                          {" · "}
+                          {pessoas.find((p) => p.id === aporte.pessoaId)?.nome ??
+                            "—"}
+                        </span>
+                      ) : null}
+                    </span>
 
                     <strong>{formatarMoeda(aporte.valor)}</strong>
 

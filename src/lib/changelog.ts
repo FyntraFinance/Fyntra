@@ -21,6 +21,20 @@ export type EntradaChangelog = {
 export const CHANGELOG: EntradaChangelog[] = [
   {
     data: "2026-08-19",
+    titulo: "Vencimentos, avisos no celular, tema e progresso dos eventos",
+    itens: [
+      "Cada conta fixa ou variável pode ter um dia de vencimento. Na lista aparece um selo avisando se vence hoje, se está chegando ou se já passou.",
+      "Avisos no celular: ligue em Perfil e receba um lembrete antes de a conta vencer, além de um recado diário sobre como anda o mês — quando está no vermelho ele pede calma, quando está sobrando ele sugere um programa do tamanho do seu saldo.",
+      "Escolha do tema em Perfil: claro, escuro ou automático, acompanhando o aparelho.",
+      "Nos eventos agora dá para registrar quanto cada pessoa já pagou. Uma barra mostra o andamento de cada participante e outra o do evento inteiro.",
+      "Quando o mês fecha negativo, o cartão deixa de se chamar Sobra e passa a Déficit do Mês; no cartão de cada pessoa, Sobra vira Faltante.",
+      "Os cartões do topo do Dashboard viraram atalhos: clique em Salários para ir a Pessoas, em Ganhos Extras para os ganhos, e assim por diante.",
+      "Ao guardar dinheiro numa meta, você escolhe quem tirou do próprio bolso — o valor entra nos gastos dessa pessoa em vez de ser dividido entre todos.",
+      "Ajustes no tema escuro: campos preenchidos automaticamente, textos de dica e o ícone do calendário não ficam mais invisíveis.",
+    ],
+  },
+  {
+    data: "2026-08-19",
     titulo: "Relatório em Excel, Perfil mais simples e correções no celular",
     itens: [
       "Novo relatório do mês no Perfil: baixe uma planilha do Excel com o resumo, um gráfico dos gastos por categoria e uma aba para cada coisa — contas fixas, contas variáveis, ganhos extras e o que foi guardado em metas.",

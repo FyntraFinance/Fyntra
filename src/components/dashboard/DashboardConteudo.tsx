@@ -7,7 +7,15 @@ import {
 import { GuardarNaMeta } from "@/components/dashboard/GuardarNaMeta";
 import type { MetaCalculada, ResumoPessoa, Totais } from "@/lib/calculos";
 import { corAvatar, formatarMesAno, formatarMoeda, inicialNome } from "@/lib/format";
-import type { AporteMetaDTO } from "@/lib/tipos";
+import type { AporteMetaDTO, PessoaDTO } from "@/lib/tipos";
+
+/** Abas que os cartões do dashboard conseguem abrir. */
+export type AbaAtalho =
+  | "pessoas"
+  | "ganhos"
+  | "contas-fixas"
+  | "contas-variaveis"
+  | "eventos";
 
 type Movimentacao = {
   id: string;
@@ -28,6 +36,8 @@ export function DashboardConteudo({
   movimentacoes,
   mes,
   aportesMes,
+  pessoas,
+  irParaAba,
 }: {
   totais: Totais;
   resumoPessoas: ResumoPessoa[];
@@ -43,60 +53,123 @@ export function DashboardConteudo({
   movimentacoes: Movimentacao[];
   mes: string;
   aportesMes: AporteMetaDTO[];
+  pessoas: PessoaDTO[];
+  /** Leva para a aba correspondente ao cartão clicado. */
+  irParaAba?: (aba: AbaAtalho) => void;
 }) {
+  /**
+   * Cartão de métrica. Com destino informado ele vira botão e leva para a
+   * tela daquele número; sem destino, continua um cartão comum.
+   */
+  function Metrica({
+    cor,
+    icone,
+    rotulo,
+    valor,
+    destino,
+  }: {
+    cor: string;
+    icone: string;
+    rotulo: string;
+    valor: number;
+    destino?: AbaAtalho;
+  }) {
+    const conteudo = (
+      <>
+        <div className={`metric-icon ${cor}`}>{icone}</div>
+        <div className="metric-label">{rotulo}</div>
+        <div className="metric-value">{formatarMoeda(valor)}</div>
+      </>
+    );
+
+    if (!destino || !irParaAba) {
+      return <div className={`card metric-card c-${cor}`}>{conteudo}</div>;
+    }
+
+    return (
+      <button
+        type="button"
+        className={`card metric-card c-${cor} metric-card-link`}
+        title={`Ver ${rotulo}`}
+        onClick={() => irParaAba(destino)}
+      >
+        {conteudo}
+        <span className="metric-seta" aria-hidden="true">
+          →
+        </span>
+      </button>
+    );
+  }
+
+  // No vermelho não existe sobra: o que há é uma conta a descoberto.
+  const noVermelho = totais.sobra < 0;
+
   return (
     <>
       <div className="metrics-grid">
-        <div className="card metric-card c-green">
-          <div className="metric-icon green">💰</div>
-          <div className="metric-label">Total Salários</div>
-          <div className="metric-value">
-            {formatarMoeda(totais.totalSalarios)}
-          </div>
-        </div>
+        <Metrica
+          cor="green"
+          icone="💰"
+          rotulo="Total Salários"
+          valor={totais.totalSalarios}
+          destino="pessoas"
+        />
 
-        <div className="card metric-card c-green">
-          <div className="metric-icon green">💵</div>
-          <div className="metric-label">Ganhos Extras</div>
-          <div className="metric-value">
-            {formatarMoeda(totais.totalGanhosExtras)}
-          </div>
-        </div>
+        <Metrica
+          cor="green"
+          icone="💵"
+          rotulo="Ganhos Extras"
+          valor={totais.totalGanhosExtras}
+          destino="ganhos"
+        />
 
-        <div className="card metric-card c-blue">
-          <div className="metric-icon blue">🏠</div>
-          <div className="metric-label">Contas Fixas</div>
-          <div className="metric-value">{formatarMoeda(totais.totalFixas)}</div>
-        </div>
+        <Metrica
+          cor="blue"
+          icone="🏠"
+          rotulo="Contas Fixas"
+          valor={totais.totalFixas}
+          destino="contas-fixas"
+        />
 
-        <div className="card metric-card c-purple">
-          <div className="metric-icon purple">💳</div>
-          <div className="metric-label">Contas Variáveis</div>
-          <div className="metric-value">
-            {formatarMoeda(totais.totalVariaveis)}
-          </div>
-        </div>
+        <Metrica
+          cor="purple"
+          icone="💳"
+          rotulo="Contas Variáveis"
+          valor={totais.totalVariaveis}
+          destino="contas-variaveis"
+        />
 
         {totais.totalAportes > 0 ? (
-          <div className="card metric-card c-amber">
-            <div className="metric-icon amber">🎯</div>
-            <div className="metric-label">Guardado em Metas</div>
-            <div className="metric-value">
-              {formatarMoeda(totais.totalAportes)}
-            </div>
-          </div>
+          <Metrica
+            cor="amber"
+            icone="🎯"
+            rotulo="Guardado em Metas"
+            valor={totais.totalAportes}
+          />
         ) : null}
 
-        <div className="card metric-card c-red">
-          <div className="metric-icon red">📉</div>
-          <div className="metric-label">Total Gastos</div>
-          <div className="metric-value">{formatarMoeda(totais.totalGastos)}</div>
-        </div>
+        <Metrica
+          cor="red"
+          icone="📉"
+          rotulo="Total Gastos"
+          valor={totais.totalGastos}
+          destino="contas-variaveis"
+        />
 
-        <div className="card metric-card c-green">
-          <div className="metric-icon green">🐷</div>
-          <div className="metric-label">Sobra Familiar</div>
-          <div className="metric-value">{formatarMoeda(totais.sobra)}</div>
+        <div className={`card metric-card c-${noVermelho ? "red" : "green"}`}>
+          <div className={`metric-icon ${noVermelho ? "red" : "green"}`}>
+            {noVermelho ? "⚠️" : "🐷"}
+          </div>
+
+          <div className="metric-label">
+            {noVermelho ? "Déficit do Mês" : "Sobra Familiar"}
+          </div>
+
+          <div
+            className={`metric-value${noVermelho ? " valor-negativo" : ""}`}
+          >
+            {formatarMoeda(totais.sobra)}
+          </div>
         </div>
       </div>
 
@@ -219,6 +292,7 @@ export function DashboardConteudo({
                   aportes={aportesMes.filter(
                     (aporte) => aporte.metaId === meta.id,
                   )}
+                  pessoas={pessoas}
                 />
               </div>
             ))}
@@ -286,7 +360,7 @@ export function DashboardConteudo({
                   </div>
 
                   <div className="flex-between">
-                    <span>Sobra</span>
+                    <span>{pessoa.sobra < 0 ? "Faltante" : "Sobra"}</span>
 
                     <strong
                       className={

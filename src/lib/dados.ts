@@ -58,6 +58,7 @@ export async function listarContasFixas(
     pessoaId: conta.pessoaId,
     dataInicio: conta.dataInicio,
     dataFim: conta.dataFim,
+    diaVencimento: conta.diaVencimento,
     observacao: conta.observacao,
   }));
 }
@@ -81,6 +82,7 @@ export async function listarContasVariaveis(
     mesInicio: conta.mesInicio,
     mesFim: conta.mesFim,
     parcelas: conta.parcelas,
+    diaVencimento: conta.diaVencimento,
     formaPagamento: conta.formaPagamento,
     observacao: conta.observacao,
   }));
@@ -121,6 +123,7 @@ export async function listarAportes(
     valor: Number(aporte.valor),
     data: aporte.data,
     mes: aporte.mes,
+    pessoaId: aporte.pessoaId,
     observacao: aporte.observacao,
   }));
 }
@@ -169,6 +172,13 @@ export async function listarEventos(
       0,
     );
 
+    const cota = total / divisor;
+
+    const totalPago = evento.participantes.reduce(
+      (soma, participante) => soma + Number(participante.valorPago),
+      0,
+    );
+
     return {
       id: evento.id,
       nome: evento.nome,
@@ -177,12 +187,20 @@ export async function listarEventos(
       dataInicio: evento.dataInicio,
       dataFim: evento.dataFim,
       encerrado: evento.encerrado,
-      participantes: evento.participantes.map((participante) => ({
-        id: participante.id,
-        nome: participante.nome,
-        pessoaId: participante.pessoaId,
-        temAcesso: Boolean(participante.pessoa?.userId),
-      })),
+      participantes: evento.participantes.map((participante) => {
+        const pago = Number(participante.valorPago);
+
+        return {
+          id: participante.id,
+          nome: participante.nome,
+          pessoaId: participante.pessoaId,
+          temAcesso: Boolean(participante.pessoa?.userId),
+          valorPago: pago,
+          cota,
+          percentualPago:
+            cota > 0 ? Math.min(100, Math.round((pago / cota) * 100)) : 0,
+        };
+      }),
       gastos: evento.gastos.map((gasto) => ({
         id: gasto.id,
         nome: gasto.nome,
@@ -193,7 +211,10 @@ export async function listarEventos(
         cotaPorParticipante: Number(gasto.valor) / divisor,
       })),
       total,
-      cotaPorParticipante: total / divisor,
+      cotaPorParticipante: cota,
+      totalPago,
+      percentualPago:
+        total > 0 ? Math.min(100, Math.round((totalPago / total) * 100)) : 0,
     };
   });
 }

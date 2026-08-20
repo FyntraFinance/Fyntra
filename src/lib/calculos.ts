@@ -102,13 +102,19 @@ export function calcularResumoPessoas(
   ganhosMes: GanhoExtraDTO[] = [],
   aportesMes: AporteMetaDTO[] = [],
 ): ResumoPessoa[] {
-  // A meta é da família inteira, então o que foi guardado pesa em todos por
-  // igual — como acontece com uma conta compartilhada.
+  // Aporte sem dono é da família: pesa em todos por igual, como uma conta
+  // compartilhada. Quando alguém assume o aporte, ele pesa só nessa pessoa.
+  const semDono = aportesMes.filter((aporte) => !aporte.pessoaId);
+
   const aportePorPessoa =
-    pessoas.length > 0 ? somarAportes(aportesMes) / pessoas.length : 0;
+    pessoas.length > 0 ? somarAportes(semDono) / pessoas.length : 0;
 
   return pessoas.map((pessoa) => {
     let gastos = aportePorPessoa;
+
+    gastos += somarAportes(
+      aportesMes.filter((aporte) => aporte.pessoaId === pessoa.id),
+    );
 
     for (const conta of fixasMes) {
       if (conta.tipo === "INDIVIDUAL") {

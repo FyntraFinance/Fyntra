@@ -21,6 +21,7 @@ export async function registrarAporte(dados: {
   metaId: string;
   valor: number | string;
   data: string;
+  pessoaId?: string | null;
   observacao?: string;
 }): Promise<ResultadoAcao> {
   const parsed = aporteSchema.safeParse(dados);
@@ -30,7 +31,7 @@ export async function registrarAporte(dados: {
   }
 
   const { workspaceId } = await obterContexto();
-  const { metaId, valor, data, observacao } = parsed.data;
+  const { metaId, valor, data, pessoaId, observacao } = parsed.data;
 
   if (valor <= 0) {
     return { ok: false, mensagem: "Informe um valor maior que zero." };
@@ -45,6 +46,17 @@ export async function registrarAporte(dados: {
     return { ok: false, mensagem: "Meta não encontrada." };
   }
 
+  if (pessoaId) {
+    const pessoa = await prisma.pessoa.findFirst({
+      where: { id: pessoaId, workspaceId },
+      select: { id: true },
+    });
+
+    if (!pessoa) {
+      return { ok: false, mensagem: "Pessoa inválida." };
+    }
+  }
+
   await prisma.$transaction([
     prisma.aporteMeta.create({
       data: {
@@ -52,6 +64,7 @@ export async function registrarAporte(dados: {
         valor,
         data,
         mes: data.slice(0, 7),
+        pessoaId,
         observacao: observacao || null,
         workspaceId,
       },

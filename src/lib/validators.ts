@@ -48,6 +48,16 @@ export const pessoaSchema = z.object({
   salario: z.coerce.number().min(0, "Salário inválido").default(0),
 });
 
+/** Dia do vencimento: 1 a 31, ou vazio quando a conta não tem data marcada. */
+const diaVencimento = z.coerce
+  .number()
+  .int()
+  .min(1, "O dia do vencimento vai de 1 a 31")
+  .max(31, "O dia do vencimento vai de 1 a 31")
+  .nullable()
+  .optional()
+  .or(z.literal("").transform(() => null));
+
 export const contaFixaSchema = z.object({
   id: z.string().optional(),
   nome: z.string().trim().min(1, "Informe o nome"),
@@ -56,6 +66,7 @@ export const contaFixaSchema = z.object({
   tipo: z.enum(["COMPARTILHADA", "INDIVIDUAL"]),
   pessoaId: z.string().optional().nullable(),
   dataInicio: z.string().regex(MES, "Mês inicial inválido"),
+  diaVencimento,
   observacao: z.string().trim().max(500).optional(),
 });
 
@@ -67,6 +78,7 @@ export const contaVariavelSchema = z.object({
   pessoaId: z.string().min(1, "Selecione uma pessoa"),
   data: z.string().regex(DATA, "Data inválida"),
   parcelas: z.coerce.number().int().min(1, "Mínimo 1 parcela").max(360),
+  diaVencimento,
   formaPagamento: z
     .enum(["CARTAO", "PIX", "DINHEIRO", "BOLETO"])
     .default("CARTAO"),
@@ -77,7 +89,18 @@ export const aporteSchema = z.object({
   metaId: z.string().min(1, "Meta inválida"),
   valor: z.coerce.number().min(0, "Valor inválido"),
   data: z.string().regex(DATA, "Data inválida"),
+  /** Vazio = o valor saiu do caixa da família. */
+  pessoaId: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((valor) => valor || null),
   observacao: z.string().trim().max(500).optional(),
+});
+
+export const pagamentoParticipanteSchema = z.object({
+  participanteId: z.string().min(1, "Participante inválido"),
+  valorPago: z.coerce.number().min(0, "Valor inválido"),
 });
 
 export const metaSchema = z.object({

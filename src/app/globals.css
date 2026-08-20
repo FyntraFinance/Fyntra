@@ -88,7 +88,7 @@
    marca (accent/danger/purple/blue) ficam as mesmas nos dois temas. */
 @media (prefers-color-scheme: light) {
 
-    :root {
+    :root:not([data-tema="escuro"]) {
 
         --bg-0: #eef1f7;
         --bg-1: #ffffff;
@@ -99,7 +99,7 @@
 
         --text-1: #0f172a;
         --text-2: #5b6472;
-        --text-3: #64748b;
+        --text-3: #5b6675;
 
         /* Mesmas cores, tons fechados: sobre branco os tons claros do tema
            escuro ficavam em 1.7:1 — abaixo de qualquer mínimo legível. */
@@ -134,12 +134,68 @@
         color-scheme: light;
     }
 
-    .input,
-    select.input {
+:root:not([data-tema="escuro"]) .input,
+:root:not([data-tema="escuro"]) select.input {
 
         color-scheme: light;
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] {
+
+        --bg-0: #eef1f7;
+        --bg-1: #ffffff;
+        --bg-2: #f4f6fb;
+
+        --border:
+            rgba(15,23,42,.10);
+
+        --text-1: #0f172a;
+        --text-2: #5b6472;
+        --text-3: #5b6675;
+
+        /* Mesmas cores, tons fechados: sobre branco os tons claros do tema
+           escuro ficavam em 1.7:1 — abaixo de qualquer mínimo legível. */
+        --texto-positivo: #047857;
+        --texto-negativo: #b91c1c;
+        --texto-aviso: #92400e;
+        --texto-info: #1d4ed8;
+        --texto-marca: #047857;
+        --texto-roxo: #6d28d9;
+        --texto-ciano: #0e7490;
+
+        --wht-02: rgba(15,23,42,.03);
+        --wht-03: rgba(15,23,42,.04);
+        --wht-04: rgba(15,23,42,.045);
+        --wht-05: rgba(15,23,42,.055);
+        --wht-06: rgba(15,23,42,.06);
+        --wht-08: rgba(15,23,42,.08);
+        --wht-12: rgba(15,23,42,.10);
+        --wht-16: rgba(15,23,42,.14);
+
+        --blk-30: rgba(15,23,42,.10);
+        --blk-35: rgba(15,23,42,.12);
+        --blk-50: rgba(15,23,42,.16);
+        --blk-55: rgba(15,23,42,.18);
+        --blk-60: rgba(15,23,42,.24);
+
+        --surface-60: rgba(255,255,255,.75);
+        --surface-75: rgba(255,255,255,.85);
+        --surface-90: rgba(255,255,255,.92);
+        --surface-95: rgba(255,255,255,.97);
+
+        color-scheme: light;
+    }
+
+:root[data-tema="claro"] .input,
+:root[data-tema="claro"] select.input {
+
+        color-scheme: light;
+    }
+
+
 
 * {
 
@@ -332,16 +388,30 @@ body {
 
 @media (prefers-color-scheme: light) {
 
-    .brand-icon-logo .logo-tema-escuro {
+    :root:not([data-tema="escuro"]) .brand-icon-logo .logo-tema-escuro {
 
         display: none;
     }
 
-    .brand-icon-logo .logo-tema-claro {
+:root:not([data-tema="escuro"]) .brand-icon-logo .logo-tema-claro {
 
         display: block;
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .brand-icon-logo .logo-tema-escuro {
+
+        display: none;
+    }
+
+:root[data-tema="claro"] .brand-icon-logo .logo-tema-claro {
+
+        display: block;
+    }
+
+
 
 .brand-text {
 
@@ -3755,12 +3825,22 @@ a.btn-token-config {
 
 @media (prefers-color-scheme: light) {
 
-    .carregando-logo {
+    :root:not([data-tema="escuro"]) .carregando-logo {
 
         background-image:
             url("/logo-fyntra-light.png");
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .carregando-logo {
+
+        background-image:
+            url("/logo-fyntra-light.png");
+    }
+
+
 
 @keyframes fyntraPulsar {
 
@@ -3872,12 +3952,22 @@ a.btn-token-config {
 
 @media (prefers-color-scheme: light) {
 
-    .instalar-icone-img {
+    :root:not([data-tema="escuro"]) .instalar-icone-img {
 
         background-image:
             url("/logo-simbolo-light.png");
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .instalar-icone-img {
+
+        background-image:
+            url("/logo-simbolo-light.png");
+    }
+
+
 
 .instalar-texto {
 
@@ -4814,12 +4904,22 @@ a.btn-token-config {
    os marcadores usam um tom mais fechado para continuarem legíveis. */
 @media (prefers-color-scheme: light) {
 
-    .ajuda-item-data,
-    .ajuda-itens li::before {
+    :root:not([data-tema="escuro"]) .ajuda-item-data,
+:root:not([data-tema="escuro"]) .ajuda-itens li::before {
 
         color: #047857;
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .ajuda-item-data,
+:root[data-tema="claro"] .ajuda-itens li::before {
+
+        color: #047857;
+    }
+
+
 
 /* No celular o painel ocupa a tela toda de baixo para cima */
 
@@ -4886,16 +4986,30 @@ a.btn-token-config {
 
 @media (prefers-color-scheme: light) {
 
-    .brand-logo.logo-tema-escuro {
+    :root:not([data-tema="escuro"]) .brand-logo.logo-tema-escuro {
 
         display: none;
     }
 
-    .brand-logo.logo-tema-claro {
+:root:not([data-tema="escuro"]) .brand-logo.logo-tema-claro {
 
         display: block;
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .brand-logo.logo-tema-escuro {
+
+        display: none;
+    }
+
+:root[data-tema="claro"] .brand-logo.logo-tema-claro {
+
+        display: block;
+    }
+
+
 
 .auth-logo {
 
@@ -4918,16 +5032,30 @@ a.btn-token-config {
 
 @media (prefers-color-scheme: light) {
 
-    .auth-logo.logo-tema-escuro {
+    :root:not([data-tema="escuro"]) .auth-logo.logo-tema-escuro {
 
         display: none;
     }
 
-    .auth-logo.logo-tema-claro {
+:root:not([data-tema="escuro"]) .auth-logo.logo-tema-claro {
 
         display: block;
     }
+
 }
+
+/* Mesmo bloco, quando o tema claro foi escolhido na mão. */
+:root[data-tema="claro"] .auth-logo.logo-tema-escuro {
+
+        display: none;
+    }
+
+:root[data-tema="claro"] .auth-logo.logo-tema-claro {
+
+        display: block;
+    }
+
+
 
 /* ==========================================================================
    FORMA DE PAGAMENTO DAS CONTAS VARIÁVEIS
@@ -5191,6 +5319,466 @@ a.btn-token-config {
 
         font-size: 20px;
     }
+}
+
+
+/* ==========================================================================
+   VENCIMENTO DAS CONTAS
+   ========================================================================== */
+
+.conta-selos {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.venc-selo {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    padding: 3px 9px;
+
+    border: 1px solid transparent;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.venc-selo.neutro {
+
+    background: var(--wht-06);
+
+    color: var(--text-2);
+}
+
+.venc-selo.perto {
+
+    background: rgba(245,158,11,.15);
+
+    border-color: rgba(245,158,11,.35);
+
+    color: var(--texto-aviso);
+}
+
+.venc-selo.hoje {
+
+    background: rgba(59,130,246,.15);
+
+    border-color: rgba(59,130,246,.35);
+
+    color: var(--texto-info);
+}
+
+.venc-selo.atrasado {
+
+    background: rgba(239,68,68,.15);
+
+    border-color: rgba(239,68,68,.35);
+
+    color: var(--texto-negativo);
+}
+
+/* ==========================================================================
+   PROGRESSO DOS EVENTOS
+   ========================================================================== */
+
+.evento-progresso {
+
+    margin-top: 14px;
+
+    padding-top: 14px;
+
+    border-top: 1px solid var(--border);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.evento-progresso-topo {
+
+    display: flex;
+
+    align-items: baseline;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    font-size: 13px;
+
+    color: var(--text-2);
+}
+
+.evento-progresso-topo strong {
+
+    color: var(--text-1);
+
+    font-variant-numeric: tabular-nums;
+}
+
+.evento-barra {
+
+    height: 8px;
+
+    border-radius: 999px;
+
+    background: var(--wht-08);
+
+    overflow: hidden;
+}
+
+.evento-barra.fina {
+
+    height: 6px;
+}
+
+.evento-barra-preenchida {
+
+    height: 100%;
+
+    border-radius: 999px;
+
+    background: var(--accent);
+
+    transition: width .3s ease;
+}
+
+.evento-barra-preenchida.completa {
+
+    background: var(--accent);
+
+    opacity: .85;
+}
+
+/* Participantes com a parte de cada um */
+
+.participante-lista {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.participante-item {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    background: var(--wht-03);
+}
+
+.participante-topo {
+
+    display: flex;
+
+    align-items: baseline;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+.participante-nome {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-weight: 600;
+
+    font-size: 14px;
+}
+
+.participante-valores {
+
+    font-size: 13px;
+
+    font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+}
+
+.participante-acoes {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+.participante-acoes .text-xs {
+
+    margin-right: auto;
+}
+
+.participante-btn {
+
+    padding: 6px 12px;
+
+    font-size: 12px;
+}
+
+.participante-remover {
+
+    width: 32px;
+
+    height: 32px;
+
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   ATALHOS NOS CARTÕES DO DASHBOARD
+   ========================================================================== */
+
+.metric-card-link {
+
+    position: relative;
+
+    display: block;
+
+    width: 100%;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    font: inherit;
+
+    color: inherit;
+
+    transition: transform .15s ease, border-color .15s ease;
+}
+
+.metric-card-link:hover {
+
+    transform: translateY(-2px);
+
+    border-color: var(--wht-16);
+}
+
+.metric-seta {
+
+    position: absolute;
+
+    top: 16px;
+
+    right: 16px;
+
+    color: var(--text-2);
+
+    font-size: 15px;
+
+    opacity: 0;
+
+    transition: opacity .15s ease, transform .15s ease;
+}
+
+.metric-card-link:hover .metric-seta {
+
+    opacity: 1;
+
+    transform: translateX(2px);
+}
+
+/* No toque não existe hover: a seta fica sempre visível. */
+@media (hover: none) {
+
+    .metric-seta {
+
+        opacity: .55;
+    }
+}
+
+/* ==========================================================================
+   ESCOLHA DO TEMA
+   ========================================================================== */
+
+.tema-opcoes {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 8px;
+}
+
+.tema-opcao {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 12px 8px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--wht-03);
+
+    color: var(--text-1);
+
+    font-size: 12px;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.tema-opcao:hover {
+
+    background: var(--wht-06);
+}
+
+.tema-opcao.selecionada {
+
+    border-color: var(--accent);
+
+    background: rgba(16,185,129,.12);
+}
+
+.tema-opcao span {
+
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+
+    .tema-opcoes {
+
+        grid-template-columns: 1fr;
+    }
+
+    .tema-opcao {
+
+        flex-direction: row;
+
+        align-items: baseline;
+
+        gap: 8px;
+
+        text-align: left;
+    }
+}
+
+
+/* ==========================================================================
+   CAMPOS: CASOS EM QUE O NAVEGADOR IMPÕE COR PRÓPRIA
+   ========================================================================== */
+
+/* O preenchimento automático do Chrome pinta fundo claro e texto preto por
+   conta própria — no tema escuro o texto sumia. O background é ignorado
+   nesses campos, então a cor entra por uma sombra interna. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill,
+textarea:-webkit-autofill {
+
+    -webkit-text-fill-color: var(--text-1);
+
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-2) inset;
+
+    caret-color: var(--text-1);
+
+    transition: background-color 9999s ease-out;
+}
+
+/* Sem cor definida, o texto de dica herda um cinza do navegador que some no
+   escuro e briga com o fundo no claro. */
+input::placeholder,
+textarea::placeholder {
+
+    color: var(--text-2);
+
+    opacity: 1;
+}
+
+/* O ícone do seletor de data vem preto e desaparecia no tema escuro. */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator {
+
+    cursor: pointer;
+
+    opacity: .75;
+}
+
+:root:not([data-tema="claro"]) input[type="date"]::-webkit-calendar-picker-indicator,
+:root:not([data-tema="claro"]) input[type="month"]::-webkit-calendar-picker-indicator {
+
+    filter: invert(1);
+}
+
+@media (prefers-color-scheme: light) {
+
+    :root:not([data-tema="escuro"]) input[type="date"]::-webkit-calendar-picker-indicator,
+    :root:not([data-tema="escuro"]) input[type="month"]::-webkit-calendar-picker-indicator {
+
+        filter: none;
+    }
+}
+
+:root[data-tema="escuro"] input[type="date"]::-webkit-calendar-picker-indicator,
+:root[data-tema="escuro"] input[type="month"]::-webkit-calendar-picker-indicator {
+
+    filter: invert(1);
+}
+
+/* As opções nativas de um select seguem o tema do sistema, não o do app. */
+select.input option,
+select.input optgroup {
+
+    background-color: var(--bg-1);
+
+    color: var(--text-1);
+}
+
+/* O Recharts monta a caixa de dica com cor própria nos itens. */
+.recharts-tooltip-item,
+.recharts-tooltip-label,
+.recharts-legend-item-text {
+
+    color: var(--text-1) !important;
 }
 
 

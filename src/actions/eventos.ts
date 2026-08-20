@@ -8,6 +8,7 @@ import type { ResultadoAcao } from "@/lib/tipos";
 import {
   eventoSchema,
   gastoEventoSchema,
+  pagamentoParticipanteSchema,
   participanteEventoSchema,
   primeiroErro,
 } from "@/lib/validators";
@@ -247,6 +248,42 @@ export async function removerParticipante(
   revalidar();
 
   return { ok: true, mensagem: "Participante removido e cotas refeitas." };
+}
+
+/**
+ * Registra quanto um participante já entregou da parte dele. É o total
+ * acumulado, não uma parcela: a tela mostra o quanto falta a partir daqui.
+ */
+export async function registrarPagamentoParticipante(dados: {
+  participanteId: string;
+  valorPago: number | string;
+}): Promise<ResultadoAcao> {
+  const parsed = pagamentoParticipanteSchema.safeParse(dados);
+
+  if (!parsed.success) {
+    return { ok: false, mensagem: primeiroErro(parsed.error) };
+  }
+
+  const { workspaceId } = await obterContexto();
+  const { participanteId, valorPago } = parsed.data;
+
+  const participante = await prisma.participanteEvento.findFirst({
+    where: { id: participanteId, evento: { workspaceId } },
+    select: { id: true, nome: true },
+  });
+
+  if (!participante) {
+    return { ok: false, mensagem: "Participante não encontrado." };
+  }
+
+  await prisma.participanteEvento.update({
+    where: { id: participante.id },
+    data: { valorPago },
+  });
+
+  revalidar();
+
+  return { ok: true, mensagem: `Pagamento de ${participante.nome} atualizado.` };
 }
 
 export async function salvarGastoEvento(dados: {

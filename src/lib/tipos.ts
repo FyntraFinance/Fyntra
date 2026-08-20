@@ -44,6 +44,7 @@ export type ContaFixaDTO = {
   pessoaId: string | null;
   dataInicio: string;
   dataFim: string | null;
+  diaVencimento: number | null;
   observacao: string | null;
 };
 
@@ -58,6 +59,7 @@ export type ContaVariavelDTO = {
   mesInicio: string;
   mesFim: string;
   parcelas: number;
+  diaVencimento: number | null;
   formaPagamento: FormaPagamento;
   observacao: string | null;
 };
@@ -80,6 +82,8 @@ export type AporteMetaDTO = {
   valor: number;
   data: string;
   mes: string;
+  /** Quem tirou do próprio bolso; nulo quando é da família toda. */
+  pessoaId: string | null;
   observacao: string | null;
 };
 
@@ -102,6 +106,12 @@ export type ParticipanteEventoDTO = {
   pessoaId: string | null;
   /** A pessoa vinculada já aceitou o convite e usa o app. */
   temAcesso: boolean;
+  /** Quanto já entregou da parte dele. */
+  valorPago: number;
+  /** Quanto cabe a ele no evento. */
+  cota: number;
+  /** Percentual pago da cota, de 0 a 100. */
+  percentualPago: number;
 };
 
 export type GastoEventoDTO = {
@@ -128,6 +138,10 @@ export type EventoDTO = {
   total: number;
   /** Total dividido pelo número de participantes. */
   cotaPorParticipante: number;
+  /** Soma do que os participantes já entregaram. */
+  totalPago: number;
+  /** Quanto do evento já foi quitado, de 0 a 100. */
+  percentualPago: number;
 };
 
 /**

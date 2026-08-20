@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import {
   adicionarParticipante,
   encerrarEvento,
+  registrarPagamentoParticipante,
   removerEvento,
   removerGastoEvento,
   removerParticipante,
@@ -18,6 +19,7 @@ import {
   CATEGORIAS_EVENTO,
   type EventoDTO,
   type GastoEventoDTO,
+  type ParticipanteEventoDTO,
   type PessoaDTO,
 } from "@/lib/tipos";
 
@@ -72,6 +74,9 @@ export function ListaEventos({
   const [removendoGasto, setRemovendoGasto] = useState<GastoEventoDTO | null>(
     null,
   );
+
+  const [pagando, setPagando] = useState<ParticipanteEventoDTO | null>(null);
+  const [valorPago, setValorPago] = useState("");
 
   function alternarAberto(id: string) {
     setAbertos((atuais) =>
@@ -164,6 +169,28 @@ export function ListaEventos({
 
       if (resultado.ok) {
         setFormGasto(null);
+      }
+    });
+  }
+
+  function abrirPagamento(participante: ParticipanteEventoDTO) {
+    setPagando(participante);
+    setValorPago(String(participante.valorPago || ""));
+  }
+
+  function salvarPagamento() {
+    if (!pagando) return;
+
+    iniciar(async () => {
+      const resultado = await registrarPagamentoParticipante({
+        participanteId: pagando.id,
+        valorPago: valorPago || 0,
+      });
+
+      mostrarToast(resultado.mensagem, resultado.ok ? "success" : "error");
+
+      if (resultado.ok) {
+        setPagando(null);
       }
     });
   }
@@ -267,6 +294,46 @@ export function ListaEventos({
                   </div>
                 </div>
 
+                {/* Andamento geral: quanto do evento já foi acertado. */}
+                {evento.total > 0 ? (
+                  <div className="evento-progresso">
+                    <div className="evento-progresso-topo">
+                      <span>
+                        {formatarMoeda(evento.totalPago)} pago de{" "}
+                        {formatarMoeda(evento.total)}
+                      </span>
+
+                      <strong
+                        className={
+                          evento.percentualPago >= 100 ? "valor-positivo" : ""
+                        }
+                      >
+                        {evento.percentualPago}%
+                      </strong>
+                    </div>
+
+                    <div className="evento-barra">
+                      <div
+                        className={`evento-barra-preenchida${
+                          evento.percentualPago >= 100 ? " completa" : ""
+                        }`}
+                        style={{ width: `${evento.percentualPago}%` }}
+                      />
+                    </div>
+
+                    {evento.total > evento.totalPago ? (
+                      <div className="text-xs texto-suave">
+                        Falta acertar{" "}
+                        {formatarMoeda(evento.total - evento.totalPago)}
+                      </div>
+                    ) : (
+                      <div className="text-xs valor-positivo">
+                        ✅ Todo mundo já acertou a parte
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
                 {aberto ? (
                   <div className="evento-corpo">
                     <div className="evento-secao">
@@ -274,46 +341,90 @@ export function ListaEventos({
                         👥 Quem está no rateio
                       </div>
 
-                      <div className="evento-participantes">
-                        {evento.participantes.length === 0 ? (
-                          <span className="text-muted">
-                            Nenhum participante ainda — sem gente no rateio,
-                            nada é dividido.
-                          </span>
-                        ) : (
-                          evento.participantes.map((participante) => (
-                            <span
-                              className={`evento-chip${
-                                participante.pessoaId ? " da-familia" : ""
-                              }`}
+                      {evento.participantes.length === 0 ? (
+                        <span className="text-muted">
+                          Nenhum participante ainda — sem gente no rateio, nada
+                          é dividido.
+                        </span>
+                      ) : (
+                        <div className="participante-lista">
+                          {evento.participantes.map((participante) => (
+                            <div
+                              className="participante-item"
                               key={participante.id}
                             >
-                              {participante.nome}
+                              <div className="participante-topo">
+                                <span className="participante-nome">
+                                  {participante.nome}
 
-                              <span className="evento-chip-tag">
-                                {participante.temAcesso
-                                  ? "com acesso"
-                                  : participante.pessoaId
-                                    ? "da família"
-                                    : "convidado"}
-                              </span>
+                                  <span className="evento-chip-tag">
+                                    {participante.temAcesso
+                                      ? "com acesso"
+                                      : participante.pessoaId
+                                        ? "da família"
+                                        : "convidado"}
+                                  </span>
+                                </span>
 
-                              <button
-                                type="button"
-                                title="Tirar do rateio"
-                                disabled={pendente}
-                                onClick={() =>
-                                  executar(() =>
-                                    removerParticipante(participante.id),
-                                  )
-                                }
-                              >
-                                ✕
-                              </button>
-                            </span>
-                          ))
-                        )}
-                      </div>
+                                <span className="participante-valores">
+                                  <strong>
+                                    {formatarMoeda(participante.valorPago)}
+                                  </strong>{" "}
+                                  <span className="texto-suave">
+                                    de {formatarMoeda(participante.cota)}
+                                  </span>
+                                </span>
+                              </div>
+
+                              <div className="evento-barra fina">
+                                <div
+                                  className={`evento-barra-preenchida${
+                                    participante.percentualPago >= 100
+                                      ? " completa"
+                                      : ""
+                                  }`}
+                                  style={{
+                                    width: `${participante.percentualPago}%`,
+                                  }}
+                                />
+                              </div>
+
+                              <div className="participante-acoes">
+                                <span className="text-xs texto-suave">
+                                  {participante.valorPago >= participante.cota
+                                    ? "✅ acertado"
+                                    : `falta ${formatarMoeda(
+                                        participante.cota -
+                                          participante.valorPago,
+                                      )}`}
+                                </span>
+
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary participante-btn"
+                                  onClick={() => abrirPagamento(participante)}
+                                >
+                                  💵 Registrar pagamento
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="btn-icon participante-remover"
+                                  title="Tirar do rateio"
+                                  disabled={pendente}
+                                  onClick={() =>
+                                    executar(() =>
+                                      removerParticipante(participante.id),
+                                    )
+                                  }
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       <button
                         className="btn btn-secondary evento-btn-add"
@@ -704,6 +815,75 @@ export function ListaEventos({
               onChange={(evento) => setGastoObservacao(evento.target.value)}
             />
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        aberto={Boolean(pagando)}
+        titulo={`Pagamento de ${pagando?.nome ?? ""}`}
+        onFechar={() => setPagando(null)}
+        footer={
+          <>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => setPagando(null)}
+              disabled={pendente}
+            >
+              Cancelar
+            </button>
+
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={salvarPagamento}
+              disabled={pendente}
+            >
+              {pendente ? "Salvando..." : "Salvar"}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-muted">
+            Parte de {pagando?.nome} no evento:{" "}
+            <strong>{formatarMoeda(pagando?.cota ?? 0)}</strong>
+          </p>
+
+          <div>
+            <label className="form-label">
+              Total já pago por essa pessoa (R$){" "}
+              <span className="text-muted text-xs">
+                — o valor acumulado, não a parcela de agora
+              </span>
+            </label>
+
+            <input
+              className="input"
+              type="number"
+              min="0"
+              step="0.01"
+              value={valorPago}
+              onChange={(evento) => setValorPago(evento.target.value)}
+              autoFocus
+            />
+          </div>
+
+          {pagando && Number(valorPago) < pagando.cota ? (
+            <div className="aporte-aviso">
+              Falta{" "}
+              <strong>
+                {formatarMoeda(pagando.cota - (Number(valorPago) || 0))}
+              </strong>{" "}
+              para essa pessoa acertar a parte dela.
+            </div>
+          ) : null}
+
+          {pagando && Number(valorPago) >= pagando.cota && pagando.cota > 0 ? (
+            <div className="aporte-aviso">
+              ✅ Com esse valor a parte de {pagando.nome} fica quitada.
+            </div>
+          ) : null}
         </div>
       </Modal>
 

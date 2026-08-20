@@ -40,6 +40,19 @@ export const viewport: Viewport = {
  * acontecer antes de o React montar. O <ConviteInstalar> depois recupera o
  * evento de `window`.
  */
+/**
+ * Aplica o tema escolhido antes da primeira pintura. Se rodasse depois da
+ * hidratação, a tela piscaria no tema errado a cada carregamento.
+ */
+const APLICAR_TEMA = `
+try {
+  var tema = localStorage.getItem("fyntra_tema");
+  if (tema === "claro" || tema === "escuro") {
+    document.documentElement.setAttribute("data-tema", tema);
+  }
+} catch (e) {}
+`;
+
 const PREPARAR_INSTALACAO = `
 window.__fyntraInstalacao = null;
 window.addEventListener("beforeinstallprompt", function (evento) {
@@ -62,6 +75,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: APLICAR_TEMA }} />
         <script dangerouslySetInnerHTML={{ __html: PREPARAR_INSTALACAO }} />
       </head>
 

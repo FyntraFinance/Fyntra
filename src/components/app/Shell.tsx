@@ -72,6 +72,7 @@ export type DadosAbas = {
     }[];
     mes: string;
     aportesMes: AporteMetaDTO[];
+    pessoas: PessoaDTO[];
   };
   pessoas: { pessoas: PessoaDTO[]; podeConvidar: boolean };
   contasFixas: {
@@ -153,7 +154,12 @@ export function Shell({
   function conteudoDaAba() {
     switch (abaAtiva) {
       case "dashboard":
-        return <DashboardConteudo {...abas.dashboard} />;
+        return (
+          <DashboardConteudo
+            {...abas.dashboard}
+            irParaAba={(destino) => selecionarAba(destino)}
+          />
+        );
       case "pessoas":
         return <ListaPessoas {...abas.pessoas} />;
       case "contas-fixas":

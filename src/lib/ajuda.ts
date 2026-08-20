@@ -48,6 +48,29 @@ export const GUIA: TopicoAjuda[] = [
       "Para viagens, festas e qualquer ocasião em que um grupo divide as despesas em partes iguais.",
       "Coloque no rateio quem vai. Se a pessoa é da família, escolha o nome dela na lista: a parte dela entra automaticamente nas contas variáveis e no resumo do mês. Se for alguém de fora, cadastre como convidado — essa pessoa só aumenta o número de quem divide.",
       "Cada gasto lançado é dividido pelo total de participantes. Mudou alguém no rateio ou o valor de um gasto? As partes são recalculadas na hora.",
+      "Use o botão Registrar pagamento para anotar quanto cada pessoa já entregou. A barra de cada participante mostra o quanto falta, e a barra do topo mostra o andamento do evento inteiro.",
+    ],
+  },
+  {
+    titulo: "🗓️ Vencimentos",
+    paragrafos: [
+      "Ao cadastrar uma conta você pode informar o dia do vencimento. Como a conta fixa se repete todo mês, o que vale é o dia — o app calcula a data de cada mês sozinho.",
+      "Na lista, um selo mostra a situação: vence dia tal, vence em poucos dias, vence hoje ou já venceu. Contas marcadas como pagas não aparecem em alerta.",
+    ],
+  },
+  {
+    titulo: "🔔 Avisos no celular",
+    paragrafos: [
+      "Em Perfil, ligue os avisos e escolha com quantos dias de antecedência quer ser lembrado das contas.",
+      "O recado do dia conta como anda o mês mesmo quando não há conta vencendo: se o mês está negativo ele pede para segurar os gastos; se está sobrando, sugere algo do tamanho do que sobra por dia.",
+      "A permissão vale por aparelho. No iPhone é preciso instalar o Fyntra na tela de início antes de ligar os avisos.",
+    ],
+  },
+  {
+    titulo: "🎨 Aparência",
+    paragrafos: [
+      "Em Perfil você escolhe entre tema claro, escuro ou automático. No automático o app segue o tema do seu celular ou computador.",
+      "A escolha vale só naquele aparelho — dá para usar escuro no celular e claro no computador com o mesmo login.",
     ],
   },
   {
@@ -64,6 +87,7 @@ export const GUIA: TopicoAjuda[] = [
       "No modo automático, a sobra do mês é dividida entre as metas automáticas. No modo manual, você define quanto pretende guardar por mês.",
       "Para registrar dinheiro que você guardou de verdade, use o botão Guardar no cartão da meta, no Dashboard. O valor entra na meta e sai do saldo daquele mês — afinal, o dinheiro guardado não está mais disponível para gastar.",
       "Se registrar por engano, abra o mesmo botão Guardar: os aportes do mês aparecem ali e podem ser desfeitos.",
+      "Ao guardar, escolha quem tirou o dinheiro do próprio bolso. Escolhendo uma pessoa, o valor entra nos gastos dela; deixando como família, ele é dividido entre todos.",
     ],
   },
   {

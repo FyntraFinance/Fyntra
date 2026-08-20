@@ -21,6 +21,7 @@ model User {
   pessoas           Pessoa[]
   convitesEnviados  Convite[]          @relation("ConvitesEnviados")
   redefinicoesSenha RedefinicaoSenha[]
+  inscricoesPush    InscricaoPush[]
 }
 
 /// Token de link para "esqueci minha senha", enviado por e-mail.
@@ -62,6 +63,7 @@ model Workspace {
   ganhosExtras    GanhoExtra[]
   pagamentos      PagamentoConta[]
   aportesMeta     AporteMeta[]
+  inscricoesPush  InscricaoPush[]
 }
 
 model WorkspaceMembro {
@@ -99,6 +101,7 @@ model Pessoa {
   convites            Convite[]
   ganhosExtras        GanhoExtra[]
   participacoesEvento ParticipanteEvento[]
+  aportesMeta         AporteMeta[]
 
   @@index([workspaceId])
   @@index([userId])
@@ -136,20 +139,23 @@ enum StatusConvite {
 }
 
 model ContaFixa {
-  id          String        @id @default(cuid())
-  nome        String
-  valor       Decimal       @db.Decimal(15, 2)
-  categoria   String        @default("Outros")
-  tipo        TipoContaFixa @default(COMPARTILHADA)
-  pessoaId    String?
-  pessoa      Pessoa?       @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
-  dataInicio  String
-  dataFim     String?
-  observacao  String?
-  workspaceId String
-  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  nome          String
+  valor         Decimal       @db.Decimal(15, 2)
+  categoria     String        @default("Outros")
+  tipo          TipoContaFixa @default(COMPARTILHADA)
+  pessoaId      String?
+  pessoa        Pessoa?       @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  dataInicio    String
+  dataFim       String?
+  /// Dia do mês em que a conta vence (1 a 31). Como a conta se repete, o
+  /// vencimento é o dia, não uma data fixa.
+  diaVencimento Int?
+  observacao    String?
+  workspaceId   String
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   pagamentos PagamentoConta[]
 
@@ -174,6 +180,8 @@ model ContaVariavel {
   mesInicio      String
   mesFim         String
   parcelas       Int            @default(1)
+  /// Dia do mês em que a parcela vence (1 a 31).
+  diaVencimento  Int?
   /// Como a conta foi paga. Só o cartão parcela; as outras formas quitam no
   /// próprio mês.
   formaPagamento FormaPagamento @default(CARTAO)
@@ -228,6 +236,10 @@ model AporteMeta {
   valor       Decimal   @db.Decimal(15, 2)
   data        String
   mes         String
+  /// Quem tirou o dinheiro do próprio bolso. Sem pessoa, o valor pesa na
+  /// família inteira; com pessoa, entra só nos gastos dela.
+  pessoaId    String?
+  pessoa      Pessoa?   @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
   observacao  String?
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -235,6 +247,28 @@ model AporteMeta {
 
   @@index([workspaceId, mes])
   @@index([metaId])
+}
+
+/// Aparelho inscrito para receber avisos de vencimento. Um usuário pode ter
+/// vários (celular, computador), por isso a inscrição é por endpoint.
+model InscricaoPush {
+  id           String    @id @default(cuid())
+  endpoint     String    @unique
+  p256dh       String
+  auth         String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Quantos dias antes do vencimento avisar.
+  diasAntes    Int       @default(3)
+  /// Recado do dia sobre como anda o mês.
+  resumoDiario Boolean   @default(true)
+  ultimoEnvio  DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([userId])
 }
 
 model Configuracao {
@@ -281,6 +315,8 @@ model ParticipanteEvento {
   evento    Evento   @relation(fields: [eventoId], references: [id], onDelete: Cascade)
   pessoaId  String?
   pessoa    Pessoa?  @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  /// Quanto esta pessoa já entregou da parte dela no evento.
+  valorPago Decimal  @default(0) @db.Decimal(15, 2)
   createdAt DateTime @default(now())
 
   @@index([eventoId])

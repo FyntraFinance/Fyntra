@@ -86,6 +86,33 @@ export function adicionarMeses(mesAno: string, n: number) {
   return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/**
+ * Data de vencimento de uma conta dentro de um mês. Um dia 31 em fevereiro
+ * cai no último dia do mês, que é como as cobranças costumam funcionar.
+ */
+export function vencimentoNoMes(mes: string, dia: number) {
+  const [ano, numeroMes] = mes.split("-").map(Number);
+
+  const ultimoDia = new Date(ano, numeroMes, 0).getDate();
+
+  const diaFinal = Math.min(Math.max(1, dia), ultimoDia);
+
+  return `${mes}-${String(diaFinal).padStart(2, "0")}`;
+}
+
+/** Dias entre hoje e a data informada; negativo quando já passou. */
+export function diasAte(data: string) {
+  const [ano, mes, dia] = data.split("-").map(Number);
+
+  const alvo = new Date(ano, mes - 1, dia);
+  const hoje = new Date();
+
+  hoje.setHours(0, 0, 0, 0);
+  alvo.setHours(0, 0, 0, 0);
+
+  return Math.round((alvo.getTime() - hoje.getTime()) / 86400000);
+}
+
 /** Valida `YYYY-MM`, caindo para o mês corrente quando o valor é inválido. */
 export function normalizarMes(mes: string | null | undefined) {
   if (!mes || !/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {

@@ -6,7 +6,8 @@ import { removerContaVariavel, salvarContaVariavel } from "@/actions/contas";
 import { BotaoStatus } from "@/components/contas/BotaoStatus";
 import { Modal, ModalConfirmar } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
-import { formatarData, formatarMoeda } from "@/lib/format";
+import { SeloVencimento } from "@/components/contas/SeloVencimento";
+import { diasAte, formatarData, formatarMoeda, vencimentoNoMes } from "@/lib/format";
 import {
   CATEGORIAS_VARIAVEIS,
   FORMAS_PAGAMENTO,
@@ -51,6 +52,7 @@ export function ListaContasVariaveis({
   const [pessoaId, setPessoaId] = useState("");
   const [data, setData] = useState(hojeISO());
   const [parcelas, setParcelas] = useState("1");
+  const [diaVencimento, setDiaVencimento] = useState("");
   const [formaPagamento, setFormaPagamento] =
     useState<FormaPagamento>("CARTAO");
   const [observacao, setObservacao] = useState("");
@@ -63,6 +65,7 @@ export function ListaContasVariaveis({
     setPessoaId(conta?.pessoaId ?? "");
     setData(conta?.data ?? hojeISO());
     setParcelas(String(conta?.parcelas ?? 1));
+    setDiaVencimento(conta?.diaVencimento ? String(conta.diaVencimento) : "");
     setFormaPagamento(conta?.formaPagamento ?? "CARTAO");
     setObservacao(conta?.observacao ?? "");
     setFormAberto(true);
@@ -78,6 +81,7 @@ export function ListaContasVariaveis({
         pessoaId,
         data,
         parcelas: parcelas || 1,
+        diaVencimento: diaVencimento || null,
         formaPagamento,
         observacao,
       });
@@ -157,13 +161,23 @@ export function ListaContasVariaveis({
                       ) : null}
                     </div>
 
-                    <div className="mt-8">
+                    <div className="conta-selos mt-8">
                       <BotaoStatus
                         tipo="VARIAVEL"
                         contaId={conta.id}
                         mes={mes}
                         pago={pagas.includes(conta.id)}
                       />
+
+                      {conta.diaVencimento ? (
+                        <SeloVencimento
+                          dias={diasAte(
+                            vencimentoNoMes(mes, conta.diaVencimento),
+                          )}
+                          dia={conta.diaVencimento}
+                          pago={pagas.includes(conta.id)}
+                        />
+                      ) : null}
                     </div>
                   </div>
 
@@ -314,15 +328,34 @@ export function ListaContasVariaveis({
             </div>
           </div>
 
-          <div>
-            <label className="form-label">Data</label>
+          <div className="perfil-form-row">
+            <div className="perfil-form-group">
+              <label className="form-label">Data da compra</label>
 
-            <input
-              className="input"
-              type="date"
-              value={data}
-              onChange={(evento) => setData(evento.target.value)}
-            />
+              <input
+                className="input"
+                type="date"
+                value={data}
+                onChange={(evento) => setData(evento.target.value)}
+              />
+            </div>
+
+            <div className="perfil-form-group">
+              <label className="form-label">
+                Dia do vencimento{" "}
+                <span className="text-muted text-xs">— opcional</span>
+              </label>
+
+              <input
+                className="input"
+                type="number"
+                min="1"
+                max="31"
+                placeholder="Ex: 10"
+                value={diaVencimento}
+                onChange={(evento) => setDiaVencimento(evento.target.value)}
+              />
+            </div>
           </div>
 
           {formaPagamento === "CARTAO" ? (

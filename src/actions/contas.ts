@@ -40,6 +40,7 @@ export async function salvarContaFixa(dados: {
   tipo: "COMPARTILHADA" | "INDIVIDUAL";
   pessoaId?: string | null;
   dataInicio: string;
+  diaVencimento?: number | string | null;
   observacao?: string;
 }): Promise<ResultadoAcao> {
   const parsed = contaFixaSchema.safeParse(dados);
@@ -49,8 +50,16 @@ export async function salvarContaFixa(dados: {
   }
 
   const { workspaceId } = await obterContexto();
-  const { id, nome, valor, categoria, tipo, dataInicio, observacao } =
-    parsed.data;
+  const {
+    id,
+    nome,
+    valor,
+    categoria,
+    tipo,
+    dataInicio,
+    diaVencimento,
+    observacao,
+  } = parsed.data;
 
   const pessoaId = tipo === "INDIVIDUAL" ? parsed.data.pessoaId || null : null;
 
@@ -69,6 +78,7 @@ export async function salvarContaFixa(dados: {
     tipo,
     pessoaId,
     dataInicio,
+    diaVencimento: diaVencimento ?? null,
     observacao: observacao || null,
   };
 
@@ -116,6 +126,7 @@ export async function salvarContaVariavel(dados: {
   pessoaId: string;
   data: string;
   parcelas: number | string;
+  diaVencimento?: number | string | null;
   formaPagamento?: "CARTAO" | "PIX" | "DINHEIRO" | "BOLETO";
   observacao?: string;
 }): Promise<ResultadoAcao> {
@@ -133,6 +144,7 @@ export async function salvarContaVariavel(dados: {
     categoria,
     pessoaId,
     data,
+    diaVencimento,
     formaPagamento,
     observacao,
   } = parsed.data;
@@ -156,6 +168,8 @@ export async function salvarContaVariavel(dados: {
     mesInicio,
     mesFim: adicionarMeses(mesInicio, parcelas - 1),
     parcelas,
+    // Sem dia informado, vence no dia da compra.
+    diaVencimento: diaVencimento ?? Number(data.slice(8, 10)),
     formaPagamento,
     observacao: observacao || null,
   };
