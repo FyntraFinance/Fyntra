@@ -25,6 +25,7 @@ export const GUIA: TopicoAjuda[] = [
     paragrafos: [
       "As despesas que se repetem todo mês: aluguel, internet, energia. Basta cadastrar uma vez e informar o mês em que começaram.",
       "Compartilhada significa que o valor é dividido igualmente entre todas as pessoas cadastradas. Individual pesa só na pessoa escolhida.",
+      "No computador, a lista aparece em tabela: busque pelo nome, filtre por pessoa, categoria, status ou tipo, e use as abas para ver só as pagas ou as pendentes.",
     ],
   },
   {
@@ -33,6 +34,7 @@ export const GUIA: TopicoAjuda[] = [
       "Os gastos do dia a dia e as compras parceladas, sempre no nome de uma pessoa.",
       "Escolha como pagou: cartão, Pix, dinheiro ou boleto. O selo colorido na lista ajuda a identificar cada gasto de relance.",
       "Só o cartão parcela. Ao informar o número de parcelas, o app espalha o valor pelos meses seguintes — cada mês mostra só a parcela daquele mês. As outras formas quitam no próprio mês.",
+      "No computador, a lista aparece em tabela, com busca e filtro por pessoa, categoria, status e forma de pagamento — e abas para ver só as pagas ou as pendentes.",
     ],
   },
   {

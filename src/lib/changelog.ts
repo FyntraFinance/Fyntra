@@ -20,6 +20,18 @@ export type EntradaChangelog = {
 /** Da mais recente para a mais antiga. */
 export const CHANGELOG: EntradaChangelog[] = [
   {
+    data: "2026-08-21",
+    titulo: "Contas Fixas e Variáveis em tabela, com busca e filtros",
+    itens: [
+      "As duas telas ganharam um resumo do mês no topo: quanto está pago, quanto está pendente e quantas contas existem.",
+      "Em telas maiores, as contas aparecem em uma tabela — busca por nome, filtro por pessoa, categoria, status e forma de pagamento, e abas para ver só as pagas ou só as pendentes.",
+      "Cada conta ganhou um ícone colorido pela categoria, para identificar o tipo de gasto de relance.",
+      "Lista paginada: escolha 10, 25 ou 50 contas por página.",
+      "No celular a tela continua em cards, do jeito que já era — só o computador ganhou a tabela.",
+      "A logo do Fyntra foi refeita em vetor: fica nítida em qualquer tamanho de tela, do favicon ao topo da barra lateral.",
+    ],
+  },
+  {
     data: "2026-08-19",
     titulo: "Vencimentos, avisos no celular, tema e progresso dos eventos",
     itens: [

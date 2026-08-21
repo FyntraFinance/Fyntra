@@ -190,13 +190,13 @@ export function Shell({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="brand-logo logo-tema-escuro"
-            src="/logo-fyntra.png"
+            src="/logo-fyntra.svg"
             alt="Fyntra"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="brand-logo logo-tema-claro"
-            src="/logo-fyntra-light.png"
+            src="/logo-fyntra-light.svg"
             alt="Fyntra"
           />
         </div>
