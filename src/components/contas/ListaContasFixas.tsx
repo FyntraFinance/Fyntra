@@ -214,10 +214,6 @@ export function ListaContasFixas({
 
       <div className="card contas-toolbar mt-16">
         <div className="contas-busca">
-          <span className="contas-busca-icone" aria-hidden="true">
-            🔎
-          </span>
-
           <input
             className="input"
             type="search"

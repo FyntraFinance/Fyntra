@@ -20,6 +20,14 @@ export type EntradaChangelog = {
 /** Da mais recente para a mais antiga. */
 export const CHANGELOG: EntradaChangelog[] = [
   {
+    data: "2026-08-22",
+    titulo: "Busca de contas mais enxuta no celular",
+    itens: [
+      "O campo de busca de Contas Fixas e Contas Variáveis, no celular, aparecia como uma caixa enorme e praticamente vazia, com a lupa flutuando sozinha no meio.",
+      "O campo agora tem o tamanho normal de uma caixa de texto, sem o ícone de lupa — a busca já filtra a lista a cada letra digitada, então o ícone só ocupava espaço.",
+    ],
+  },
+  {
     data: "2026-08-21",
     titulo: "Ajustes de responsividade para celular",
     itens: [

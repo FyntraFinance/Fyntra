@@ -5820,25 +5820,11 @@ select.input optgroup {
     padding: 14px 16px;
 }
 
+/* Sem ícone: o campo já pesquisa a cada tecla digitada, então o "🔎"
+   só ocupava espaço sem avisar nada que o placeholder não avisasse. */
 .contas-busca {
-    position: relative;
     flex: 1 1 220px;
     min-width: 180px;
-}
-
-.contas-busca-icone {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 13px;
-    opacity: .6;
-    pointer-events: none;
-}
-
-.contas-busca .input,
-.contas-busca input {
-    padding-left: 34px;
 }
 
 .contas-toolbar select.input {
@@ -6096,8 +6082,13 @@ select.input optgroup {
         align-items: stretch;
     }
 
+    /* Em coluna, o eixo principal do flex vira o vertical: o "flex: 1 1
+       220px" da busca (pensado para crescer na LARGURA da barra em telas
+       largas) passava a esticar em ALTURA, virando uma caixa vazia enorme
+       com só o campo de texto encostado no topo. */
+    .contas-busca,
     .contas-toolbar select.input {
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         width: 100%;
     }
 
