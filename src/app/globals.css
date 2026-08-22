@@ -244,6 +244,7 @@ body {
    cortado. Quem cede espaço é a descrição, que quebra em mais linhas. */
 .flex-between > .text-right,
 .membro-item > .membro-role,
+.membro-item > .evento-gasto-direita,
 .evento-topo > .text-right {
 
     flex-shrink: 0;
@@ -2979,10 +2980,13 @@ select.input option {
     display: grid;
 
     /* min(280px, 100%) em vez de 280px fixo: numa tela de 320px a coluna
-       de 280 + o respiro do cartão estourava a largura. */
+       de 280 + o respiro do cartão estourava a largura. auto-fit, não
+       auto-fill: com auto-fill o Chrome calculava uma única coluna maior
+       que o próprio contêiner (~370px numa faixa de 277px) e o cartão de
+       meta vazava para fora da tela sem barra de rolagem visível. */
     grid-template-columns:
         repeat(
-            auto-fill,
+            auto-fit,
             minmax(min(280px, 100%), 1fr)
         );
 
@@ -3009,6 +3013,8 @@ select.input option {
     align-items: center;
 
     gap: 12px;
+
+    min-width: 0;
 }
 
 .meta-dash-emoji {
@@ -3043,11 +3049,15 @@ select.input option {
 
     font-size: 14px;
 
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
+    /* Sem quebra, um nome de meta comprido ("Viagem Europa no ano que
+       vem") virava a largura mínima inteira da linha — e como essa linha
+       é filha de uma linha flex dentro de um item de grid, isso arrastava
+       o card inteiro para fora da tela no celular, mesmo com min-width:0
+       no container. Deixar quebrar em mais de uma linha resolve na causa;
+       por isso não faz sentido mais truncar com reticências (que exigem
+       uma única linha) — só o overflow-wrap fica, para a palavra que não
+       couber sozinha também quebrar. */
+    overflow-wrap: anywhere;
 }
 
 .meta-dash-valores {
@@ -3169,11 +3179,23 @@ select.input option {
         grid-template-columns: 1fr;
     }
 
+    /* align-items:stretch (o padrão) deveria bastar para o bloco da
+       esquerda ocupar a largura toda da coluna, mas o motor de flexbox não
+       encolhe de forma confiável um item com flex:1 1 0% herdado do
+       layout em linha quando o eixo muda para coluna — na prática ele
+       continuava do tamanho do próprio conteúdo. O width:100% explícito
+       força o comportamento certo: o bloco ocupa a coluna toda e o nome
+       da meta consegue truncar com reticências em vez de vazar. */
     .perfil-meta-item {
 
         flex-direction: column;
 
-        align-items: flex-start;
+        align-items: stretch;
+    }
+
+    .perfil-meta-item-left {
+
+        width: 100%;
     }
 
     .perfil-meta-acoes {

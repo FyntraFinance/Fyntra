@@ -21,6 +21,16 @@ export type EntradaChangelog = {
 export const CHANGELOG: EntradaChangelog[] = [
   {
     data: "2026-08-21",
+    titulo: "Ajustes de responsividade para celular",
+    itens: [
+      "As metas do Dashboard e do Perfil tinham um nome comprido empurrando o cartão para fora da tela em celulares menores. Agora o nome quebra em mais de uma linha e o cartão respeita a largura da tela.",
+      "Nos eventos, o valor e os botões de editar/remover de um gasto podiam sair da tela quando o nome do gasto era longo. Corrigido.",
+      "Na lista de Últimas Movimentações do Dashboard, o valor de uma conta com nome comprido podia aparecer cortado. Corrigido.",
+      "Revisão geral de layout em telas de celular pequenas (a partir de 320px de largura) e de computador com pouco espaço — sem mudança visual em telas normais.",
+    ],
+  },
+  {
+    data: "2026-08-21",
     titulo: "Contas Fixas e Variáveis em tabela, com busca e filtros",
     itens: [
       "As duas telas ganharam um resumo do mês no topo: quanto está pago, quanto está pendente e quantas contas existem.",

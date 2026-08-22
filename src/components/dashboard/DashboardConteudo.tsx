@@ -417,9 +417,14 @@ export function DashboardConteudo({
                   </div>
                 </div>
 
-                <strong className="valor-negativo">
-                  {formatarMoeda(conta.valor)}
-                </strong>
+                {/* .text-right ganha flex-shrink:0 dentro de .flex-between —
+                    sem isso, um nome de conta comprido espremia o valor
+                    abaixo da própria largura mínima e ele saía cortado. */}
+                <div className="text-right">
+                  <strong className="valor-negativo">
+                    {formatarMoeda(conta.valor)}
+                  </strong>
+                </div>
               </div>
             ))
           )}
